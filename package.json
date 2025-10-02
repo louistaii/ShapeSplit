@@ -1,0 +1,19 @@
+{
+  "name": "league-stats-app",
+  "version": "1.0.0",
+  "description": "A League of Legends player statistics web application",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && NODE_TLS_REJECT_UNAUTHORIZED=0 node index.js",
+    "client": "cd client && HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 npm start",
+    "build": "cd client && NODE_TLS_REJECT_UNAUTHORIZED=0 npm run build",
+    "install-all": "NODE_TLS_REJECT_UNAUTHORIZED=0 npm install && cd server && NODE_TLS_REJECT_UNAUTHORIZED=0 npm install && cd ../client && NODE_TLS_REJECT_UNAUTHORIZED=0 npm install"
+  },
+  "keywords": ["league of legends", "riot api", "gaming", "statistics"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
