@@ -12,8 +12,8 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
-    "start": "HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts start",
-    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts build"
+    "start": "cross-env HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts start",
+    "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -31,5 +31,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
