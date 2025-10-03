@@ -148,14 +148,12 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <div className="logo-container">
-          <img src="/icon.ico" alt="ShapeSplitter" className="app-logo" />
-          <h1>Shape Splitter</h1>
+      <div className="hero-section">
+        <div className="title-container">
+          <h1 className="title-shape">SHAPE</h1>
+          <img src="/logo.png" alt="ShapeSplitter" className="hero-logo" />
+          <h1 className="title-split">SPLIT</h1>
         </div>
-      </header>
-
-      <main className="main-content">
         <div className="search-container">
           <form onSubmit={handleSubmit} className="search-form">
             <div className="input-group">
@@ -175,7 +173,6 @@ function App() {
                 className="search-input tag-input"
               />
             </div>
-            
             <select
               value={region}
               onChange={(e) => setRegion(e.target.value)}
@@ -187,22 +184,12 @@ function App() {
                 </option>
               ))}
             </select>
-            
             <button
               type="submit"
               disabled={loading}
               className="search-button"
             >
-              {loading ? 'Searching...' : 'Search'}
-            </button>
-            
-            <button
-              type="button"
-              onClick={testDataDragonImages}
-              disabled={loading}
-              className="search-button test-button"
-            >
-              Load Test Data (with Images)
+              {loading ? '...' : 'Search'}
             </button>
           </form>
 
@@ -308,7 +295,7 @@ function App() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
