@@ -13,6 +13,74 @@ class LeagueDataFetcher {
         this.routingRegion = routingRegion;
         this.headers = { "X-Riot-Token": apiKey };
         this.rateLimitDelay = 1200; // 1.2 seconds
+        this.ddragonVersion = null; // Cache the Data Dragon version
+        this.championData = null; // Cache champion data
+    }
+
+    // Data Dragon methods
+    async getDdragonVersion() {
+        if (this.ddragonVersion) {
+            return this.ddragonVersion;
+        }
+        
+        try {
+            const response = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json', {
+                timeout: 5000,
+                httpsAgent: httpsAgent
+            });
+            this.ddragonVersion = response.data[0]; // Latest version
+            return this.ddragonVersion;
+        } catch (error) {
+            console.error('Error fetching Data Dragon version:', error);
+            // Fallback to a known stable version
+            this.ddragonVersion = '14.20.1';
+            return this.ddragonVersion;
+        }
+    }
+
+    async getChampionData() {
+        if (this.championData) {
+            return this.championData;
+        }
+
+        try {
+            const version = await this.getDdragonVersion();
+            const response = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`, {
+                timeout: 10000,
+                httpsAgent: httpsAgent
+            });
+            this.championData = response.data.data;
+            return this.championData;
+        } catch (error) {
+            console.error('Error fetching champion data:', error);
+            return {};
+        }
+    }
+
+    getProfileIconUrl(profileIconId) {
+        if (!this.ddragonVersion) {
+            return null;
+        }
+        return `https://ddragon.leagueoflegends.com/cdn/${this.ddragonVersion}/img/profileicon/${profileIconId}.png`;
+    }
+
+    async getChampionImageUrl(championId) {
+        try {
+            const championData = await this.getChampionData();
+            const version = await this.getDdragonVersion();
+            
+            // Find champion by ID
+            const champion = Object.values(championData).find(champ => parseInt(champ.key) === championId);
+            
+            if (champion) {
+                return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champion.id}.png`;
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Error getting champion image URL:', error);
+            return null;
+        }
     }
 
     async _makeRequest(url, params = null) {
@@ -90,6 +158,9 @@ class LeagueDataFetcher {
         };
 
         try {
+            // Initialize Data Dragon version
+            await this.getDdragonVersion();
+
             // Get account info
             const accountData = await this.getAccountByRiotId(gameName, tagLine);
             if (!accountData) {
@@ -103,6 +174,12 @@ class LeagueDataFetcher {
             await this._delay();
             const summonerData = await this.getSummonerByPuuid(puuid);
             data.summoner = summonerData;
+            
+            // Add profile icon URL
+            if (summonerData?.profileIconId) {
+                data.summoner.profileIconUrl = this.getProfileIconUrl(summonerData.profileIconId);
+            }
+            
             const summonerId = summonerData?.id;
 
             // Get ranked data
@@ -122,6 +199,13 @@ class LeagueDataFetcher {
             ]);
 
             if (masteryScore !== null && allMasteries) {
+                // Add champion image URLs to mastery data
+                for (const mastery of allMasteries.slice(0, 10)) {
+                    if (mastery.championId) {
+                        mastery.championImageUrl = await this.getChampionImageUrl(mastery.championId);
+                    }
+                }
+                
                 data.championMastery = {
                     totalScore: masteryScore,
                     champions: allMasteries.slice(0, 10) // Top 10 champions
@@ -146,12 +230,23 @@ class LeagueDataFetcher {
                     await this._delay();
                     const matchData = await this.getMatchDetails(matchIds[i]);
                     if (matchData) {
+                        // Enhance match data with champion images
+                        if (matchData.info && matchData.info.participants) {
+                            for (const participant of matchData.info.participants) {
+                                if (participant.championId) {
+                                    participant.championImageUrl = await this.getChampionImageUrl(participant.championId);
+                                }
+                            }
+                        }
                         data.matches.push(matchData);
                     }
                 }
             } else {
                 data.matches = [];
             }
+
+            // Add Data Dragon version to metadata
+            data.metadata.ddragonVersion = this.ddragonVersion;
 
             return data;
 

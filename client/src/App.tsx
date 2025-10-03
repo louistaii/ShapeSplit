@@ -10,6 +10,7 @@ interface PlayerData {
   summoner?: {
     summonerLevel: number;
     profileIconId: number;
+    profileIconUrl?: string;
   };
   ranked?: Array<{
     queueType: string;
@@ -19,15 +20,32 @@ interface PlayerData {
     wins: number;
     losses: number;
   }>;
-  champion_mastery?: {
-    total_score: number;
+  championMastery?: {
+    totalScore: number;
     champions: Array<{
       championId: number;
       championLevel: number;
       championPoints: number;
+      championImageUrl?: string;
     }>;
   };
-  matches?: Array<any>;
+  matches?: Array<{
+    metadata?: { matchId: string };
+    info?: {
+      gameDuration: number;
+      gameMode: string;
+      participants?: Array<{
+        puuid: string;
+        championId: number;
+        championName: string;
+        championImageUrl?: string;
+        win: boolean;
+        kills: number;
+        deaths: number;
+        assists: number;
+      }>;
+    };
+  }>;
 }
 
 const regions = [
@@ -47,7 +65,7 @@ const regions = [
 function App() {
   const [gameName, setGameName] = useState('');
   const [tagLine, setTagLine] = useState('');
-  const [region, setRegion] = useState('kr');
+  const [region, setRegion] = useState('na1');
   const [playerData, setPlayerData] = useState<PlayerData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -63,16 +81,61 @@ function App() {
     setPlayerData(null);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/player/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?region=${region}&match_count=5`);
+      const response = await fetch(`http://localhost:5000/api/search/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?region=${region}&match_count=5`);
       
       if (!response.ok) {
         throw new Error(`Player not found or API error: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('API Response:', data); // Debug log
       setPlayerData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadTestData = async () => {
+    setLoading(true);
+    setError('');
+    setPlayerData(null);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/test-images');
+      
+      if (!response.ok) {
+        throw new Error(`Test data error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Test Data Response:', data); // Debug log
+      setPlayerData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load test data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testDataDragonImages = async () => {
+    setLoading(true);
+    setError('');
+    setPlayerData(null);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/test-images');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load test data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Test Data Response:', data); // Debug log
+      setPlayerData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred loading test data');
     } finally {
       setLoading(false);
     }
@@ -132,6 +195,15 @@ function App() {
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
+            
+            <button
+              type="button"
+              onClick={testDataDragonImages}
+              disabled={loading}
+              className="search-button test-button"
+            >
+              Load Test Data (with Images)
+            </button>
           </form>
 
           {error && <div className="error-message">{error}</div>}
@@ -140,6 +212,19 @@ function App() {
         {playerData && (
           <div className="results-container">
             <div className="player-header">
+              {playerData.summoner?.profileIconUrl && (
+                <div className="profile-icon">
+                  <img 
+                    src={playerData.summoner.profileIconUrl} 
+                    alt="Profile Icon" 
+                    className="profile-icon-img"
+                    onError={(e) => {
+                      console.log('Profile icon failed to load:', playerData.summoner?.profileIconUrl);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
               <div className="player-info">
                 <h2>{playerData.account?.gameName}#{playerData.account?.tagLine}</h2>
                 <p>Level {playerData.summoner?.summonerLevel}</p>
@@ -161,23 +246,62 @@ function App() {
                 </div>
               )}
 
-              {playerData.champion_mastery && (
+              {playerData.championMastery && (
                 <div className="stat-card">
                   <h3>Champion Mastery</h3>
                   <div className="mastery-total">
-                    Total Score: {playerData.champion_mastery.total_score?.toLocaleString()}
+                    Total Score: {playerData.championMastery.totalScore?.toLocaleString()}
                   </div>
                   <div className="mastery-champions">
-                    Champions Played: {playerData.champion_mastery.champions?.length}
+                    Champions Played: {playerData.championMastery.champions?.length}
                   </div>
                 </div>
               )}
 
               {playerData.matches && playerData.matches.length > 0 && (
                 <div className="stat-card">
-                  <h3>Recent Matches</h3>
-                  <div className="matches-count">
-                    {playerData.matches.length} recent matches loaded
+                  <h3>Recent Matches ({playerData.matches.length})</h3>
+                  <div className="matches-list">
+                    {playerData.matches.map((match, index: number) => {
+                      const participant = match.info?.participants?.find((p) => 
+                        p.puuid === playerData.account?.puuid
+                      );
+                      
+                      return (
+                        <div key={match.metadata?.matchId || index} className={`match-item ${participant?.win ? 'win' : 'loss'}`}>
+                          <div className="match-header">
+                            <span className={`match-result ${participant?.win ? 'win' : 'loss'}`}>
+                              {participant?.win ? 'Victory' : 'Defeat'}
+                            </span>
+                            <span className="match-duration">
+                              {Math.floor((match.info?.gameDuration || 0) / 60)}m {(match.info?.gameDuration || 0) % 60}s
+                            </span>
+                          </div>
+                          <div className="match-details">
+                            <div className="champion-info">
+                              {participant?.championImageUrl && (
+                                <img 
+                                  src={participant.championImageUrl} 
+                                  alt={participant.championName || 'Champion'} 
+                                  className="champion-icon"
+                                  onError={(e) => {
+                                    console.log('Champion icon failed to load:', participant.championImageUrl);
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <strong>{participant?.championName || 'Unknown'}</strong>
+                            </div>
+                            <div className="kda">
+                              {participant?.kills || 0}/{participant?.deaths || 0}/{participant?.assists || 0}
+                            </div>
+                            <div className="game-mode">
+                              {match.info?.gameMode || 'Unknown'}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

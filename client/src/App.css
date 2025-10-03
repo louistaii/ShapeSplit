@@ -125,28 +125,37 @@
 }
 
 .search-button {
-  background: linear-gradient(45deg, #8b6f47, #a8b892);
+  background: linear-gradient(135deg, #c9aa71, #e6cc80);
+  color: #1e2328;
   border: none;
-  border-radius: 12px;
-  color: #1a2818;
-  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
   font-weight: 600;
-  padding: 1rem 2.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(201, 170, 113, 0.3);
 }
 
-.search-button:hover {
+.search-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b8956a, #d4b56f);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(139, 111, 71, 0.4);
+  box-shadow: 0 6px 16px rgba(201, 170, 113, 0.4);
 }
 
 .search-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+.test-button {
+  background: linear-gradient(135deg, #4a90a4, #5aa5bb);
+  margin-left: 10px;
+}
+
+.test-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3d7a8a, #4b91a5);
 }
 
 .error-message {
@@ -182,6 +191,22 @@
   padding: 2rem;
   margin-bottom: 2rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.profile-icon {
+  flex-shrink: 0;
+}
+
+.profile-icon-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #8b6f47;
+  object-fit: cover;
 }
 
 .player-info h2 {
@@ -264,6 +289,89 @@
 .mastery-total {
   color: #8b6f47;
   font-weight: 600;
+}
+
+/* Match display styles */
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.match-item {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  border-left: 4px solid transparent;
+}
+
+.match-item.win {
+  border-left-color: #4ade80;
+}
+
+.match-item.loss {
+  border-left-color: #f87171;
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.match-result {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.match-result.win {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+
+.match-result.loss {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.match-duration {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.match-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.champion-info {
+  color: #a8b892;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.champion-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 2px solid #8b6f47;
+  object-fit: cover;
+}
+
+.kda {
+  font-family: 'Courier New', monospace;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.game-mode {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 768px) {
