@@ -69,6 +69,7 @@ function App() {
   const [playerData, setPlayerData] = useState<PlayerData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const searchPlayer = async () => {
     if (!gameName.trim() || !tagLine.trim()) {
@@ -148,12 +149,35 @@ function App() {
 
   return (
     <div className="App">
+       <button 
+          className="menu-button" 
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav className={`menu ${menuOpen ? 'open' : ''}`}>
+          <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
+          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>Getting Started</a>
+          <a href="https://github.com/louistaii/ShapeSplit" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>GitHub Repo</a>
+        </nav>
+
+        {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)} />}
       <div className="hero-section">
         <div className="title-container">
           <h1 className="title-shape">SHAPE</h1>
-          <img src="/logo.png" alt="ShapeSplitter" className="hero-logo" />
+          <div className="hero-logo-wrapper">
+            <img src="/logo.png" alt="ShapeSplitter" className="hero-logo" />
+            {[...Array(20)].map((_, i) => (
+              <div key={i} className="particle" />
+            ))}
+          </div>
           <h1 className="title-split">SPLIT</h1>
         </div>
+        <p className="tagline">Clone. Analyze. Dominate.</p>
         <div className="search-container">
           <form onSubmit={handleSubmit} className="search-form">
             <div className="input-group">
