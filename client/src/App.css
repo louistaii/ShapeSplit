@@ -67,6 +67,7 @@
   color: #ffffff;
   text-decoration: none;
   font-size: 1.5rem;
+  font-family: 'Rajdhani', sans-serif;
   padding: 1rem;
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
@@ -128,7 +129,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  gap: 2rem;
+  gap: 4rem;
   padding: 2rem 2rem;
   padding-bottom: 8rem;
 }
@@ -141,29 +142,6 @@
   margin-top: 4rem;
 }
 
-@keyframes rotateSpark {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-@keyframes pulseGlow {
-  0% {
-    opacity: 0.5;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.05);
-  }
-  100% {
-    opacity: 0.5;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-}
 
 .hero-logo {
   height: 600px;
@@ -171,46 +149,6 @@
   margin: 0 6rem;
   position: relative;
   z-index: 1;
-}
-
-/* Center glow effect */
-.hero-logo::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, 
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.15) 30%,
-    rgba(255, 255, 255, 0.05) 50%,
-    transparent 70%
-  );
-  transform: translate(-50%, -50%);
-  z-index: -1;
-  animation: pulseGlow 3s ease-in-out infinite;
-}
-
-/* Rotating sparkle effect */
-.hero-logo::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 500px;
-  height: 500px;
-  background: conic-gradient(
-    transparent 0deg,
-    transparent 60deg,
-    rgba(255, 255, 255, 0.2) 120deg,
-    transparent 180deg,
-    transparent 240deg,
-    rgba(255, 255, 255, 0.2) 300deg,
-    transparent 360deg
-  );
-  z-index: -1;
-  animation: rotateSpark 8s linear infinite;
 }
 
 @keyframes revealShape {
@@ -298,7 +236,6 @@
 .search-form:hover,
 .search-form:focus-within {
   border-color: #ffffff;
-  transform: scale(1.02);
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
@@ -318,7 +255,7 @@
   font-size: 1rem;
   padding: 0.5rem;
   width: 100%;
-  font-family: sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   transition: all 0.3s ease;
 }
 
@@ -352,6 +289,7 @@
   color: #ffffff;
   padding: 0.5rem;
   font-size: 0.9rem;
+  font-family: 'Rajdhani', sans-serif;
   outline: none;
   cursor: pointer;
   width: auto;
@@ -380,6 +318,7 @@
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 500;
+  font-family: 'Rajdhani', sans-serif;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 100px;
@@ -389,7 +328,6 @@
 
 .search-button:hover:not(:disabled) {
   background: #ffffff;
-  transform: scale(1.05);
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 

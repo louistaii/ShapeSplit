@@ -210,7 +210,7 @@ function App() {
             </select>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !gameName.trim() || !tagLine.trim()}
               className="search-button"
             >
               {loading ? '...' : 'Search'}
