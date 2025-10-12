@@ -9,6 +9,7 @@ require('dotenv').config();
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const LeagueDataFetcher = require('./leagueDataFetcher');
+const PersonalityAnalyzer = require('./personalityAnalyzer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -119,10 +120,89 @@ app.get('/api/test-images', async (req, res) => {
     }
 });
 
+// Server-Sent Events endpoint for real-time progress updates
+app.get('/api/search/:gameName/:tagLine/progress', async (req, res) => {
+    const { gameName, tagLine } = req.params;
+    const { region = 'na1' } = req.query;
+
+    // Set up SSE headers
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    const sendProgress = (data) => {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    try {
+        // Map regions to their routing regions
+        const regionToRoutingMap = {
+            'na1': 'americas', 'br1': 'americas', 'la1': 'americas', 'la2': 'americas',
+            'kr': 'asia', 'jp1': 'asia',
+            'euw1': 'europe', 'eun1': 'europe', 'tr1': 'europe', 'ru': 'europe',
+            'oc1': 'sea', 'ph2': 'sea', 'sg2': 'sea', 'th2': 'sea', 'tw2': 'sea', 'vn2': 'sea'
+        };
+
+        const routingRegion = regionToRoutingMap[region] || 'americas';
+
+        if (!process.env.RIOT_API_KEY) {
+            sendProgress({ type: 'error', message: 'API key not configured' });
+            res.end();
+            return;
+        }
+
+        const fetcher = new LeagueDataFetcher(
+            process.env.RIOT_API_KEY,
+            region,
+            routingRegion
+        );
+
+        // Add progress callback to fetcher
+        fetcher.progressCallback = sendProgress;
+
+        sendProgress({ type: 'progress', message: 'Starting analysis...', step: 1, total: 8 });
+
+        const playerData = await fetcher.getCompletePlayerData(
+            gameName,
+            tagLine,
+            100,  // maxFetch
+            50,   // targetAnalyze
+            true
+        );
+
+        // Add personality analysis if we have match data
+        if (playerData.matches && playerData.matches.length > 0) {
+            try {
+                sendProgress({ type: 'progress', message: '🧠 Analyzing personality patterns...', step: 7, total: 8 });
+                const analyzer = new PersonalityAnalyzer();
+                const personalityData = analyzer.analyzePersonality(playerData.matches, playerData.account.puuid);
+                playerData.personality = personalityData;
+                sendProgress({ type: 'progress', message: '✅ Personality analysis completed!', step: 8, total: 8 });
+            } catch (analysisError) {
+                console.error('Personality analysis failed:', analysisError);
+                playerData.personality = { error: 'Analysis failed', message: analysisError.message };
+                sendProgress({ type: 'error', message: 'Personality analysis failed' });
+            }
+        }
+
+        sendProgress({ type: 'complete', data: playerData });
+        res.end();
+
+    } catch (error) {
+        console.error('Search error:', error);
+        sendProgress({ type: 'error', message: error.message });
+        res.end();
+    }
+});
+
 app.get('/api/search/:gameName/:tagLine', async (req, res) => {
     try {
         const { gameName, tagLine } = req.params;
-        const { region = 'na1', matchCount = 10 } = req.query;
+        const { region = 'na1' } = req.query;
 
         // Map regions to their routing regions
         const regionToRoutingMap = {
@@ -159,9 +239,23 @@ app.get('/api/search/:gameName/:tagLine', async (req, res) => {
         const playerData = await fetcher.getCompletePlayerData(
             gameName,
             tagLine,
-            parseInt(matchCount),
+            100,  // maxFetch - like Python GAMES_TO_FETCH
+            50,   // targetAnalyze - like Python GAMES_TO_ANALYZE
             true
         );
+
+        // Add personality analysis if we have match data
+        if (playerData.matches && playerData.matches.length > 0) {
+            try {
+                const analyzer = new PersonalityAnalyzer();
+                const personalityData = analyzer.analyzePersonality(playerData.matches, playerData.account.puuid);
+                playerData.personality = personalityData;
+                console.log(`✅ Personality analysis completed for ${gameName}#${tagLine}`);
+            } catch (analysisError) {
+                console.error('Personality analysis failed:', analysisError);
+                playerData.personality = { error: 'Analysis failed', message: analysisError.message };
+            }
+        }
 
         res.json(playerData);
 
