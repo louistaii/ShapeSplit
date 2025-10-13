@@ -14,63 +14,63 @@ class PersonalityAnalyzer {
         this.JUNGIAN_ARCHETYPES = {
             "Innocent": {
                 "traits": {"Extraversion": 20, "Openness": 50, "Agreeableness": 85},
-                "champions": ["Soraka", "Lulu", "Yuumi"],
-                "description": "Optimistic and trusting, seeks harmony and simple pleasures"
+                "champions": ["Lulu"],
+                "description": "Optimistic, cautious, low-risk player"
             },
             "Orphan": {
                 "traits": {"Openness": 50, "Agreeableness": 85, "Conscientiousness": 60},
-                "champions": ["Amumu", "Braum", "Poppy"],
-                "description": "Seeks belonging and connection, empathetic and loyal"
+                "champions": ["Amumu"],
+                "description": "Empathetic, cooperative, seeks team cohesion"
             },
             "Hero": {
                 "traits": {"Extraversion": 85, "Conscientiousness": 85, "Emotional Stability": 85},
-                "champions": ["Garen", "Jarvan IV", "Darius"],
-                "description": "Courageous and determined, rises to challenges and leads by example"
+                "champions": ["Garen"],
+                "description": "Courageous, competitive, lead initiator in fights"
             },
             "Caregiver": {
                 "traits": {"Agreeableness": 90, "Extraversion": 55, "Emotional Stability": 80},
-                "champions": ["Janna", "Nami", "Taric"],
-                "description": "Nurturing and protective, finds fulfillment in helping others"
+                "champions": ["Janna"],
+                "description": "Nurturing, protective, prioritizes teammates' survival"
             },
             "Explorer": {
                 "traits": {"Openness": 85, "Extraversion": 80, "Conscientiousness": 60},
-                "champions": ["Ekko", "Azir", "Taliyah", "Ivern"],
-                "description": "Adventurous and curious, seeks new experiences and freedom"
+                "champions": ["Taliyah"],
+                "description": "Curious, independent, seeks discovery and experimentation"
             },
             "Rebel": {
                 "traits": {"Agreeableness": 20, "Extraversion": 85, "Openness": 85},
-                "champions": ["Riven", "Yasuo", "Camille"],
-                "description": "Revolutionary and independent, challenges the status quo"
+                "champions": ["Yasuo"],
+                "description": "Bold, risk-taking, breaks standard meta"
             },
             "Lover": {
                 "traits": {"Agreeableness": 85, "Extraversion": 75, "Openness": 60},
-                "champions": ["Xayah", "Rakan", "Seraphine"],
-                "description": "Passionate and committed, seeks connection and beauty"
+                "champions": ["Xayah, Rakan"],
+                "description": "Passionate, cooperative, values relationships"
             },
             "Creator": {
                 "traits": {"Openness": 90, "Conscientiousness": 60, "Extraversion": 55},
-                "champions": ["Heimerdinger", "Ziggs", "Viktor"],
-                "description": "Imaginative and artistic, transforms visions into reality"
+                "champions": ["Viktor"],
+                "description": "Imaginative, inventive, enjoys creative strategies"
             },
             "Jester": {
                 "traits": {"Extraversion": 85, "Conscientiousness": 30, "Openness": 60},
-                "champions": ["Shaco", "Draven", "Teemo"],
-                "description": "Playful and spontaneous, brings joy and challenges conventions"
+                "champions": ["Teemo"],
+                "description": "Playful, spontaneous, improvisational"
             },
             "Sage": {
                 "traits": {"Conscientiousness": 90, "Emotional Stability": 85, "Openness": 65},
-                "champions": ["Ryze", "Karma", "Zilean"],
-                "description": "Wise and knowledgeable, seeks truth and understanding"
+                "champions": ["Ryze"],
+                "description": "Analytical, thoughtful, strategic thinker"
             },
             "Magician": {
                 "traits": {"Openness": 85, "Extraversion": 80, "Conscientiousness": 80},
-                "champions": ["Zilean", "Orianna", "Twisted Fate"],
-                "description": "Transformative and visionary, makes dreams reality"
+                "champions": ["Twisted Fate"],
+                "description": "Visionary, transformative, makes things happen"
             },
             "Ruler": {
                 "traits": {"Conscientiousness": 90, "Emotional Stability": 85, "Extraversion": 65},
-                "champions": ["Leona", "Swain", "Galio"],
-                "description": "Responsible and controlling, creates order and stability"
+                "champions": ["Galio"],
+                "description": "Responsible, controlling, creates order and stability"
             }
         };
     }
