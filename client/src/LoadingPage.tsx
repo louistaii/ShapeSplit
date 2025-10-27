@@ -7,12 +7,18 @@ interface LoadingPageProps {
 
 const LoadingPage: React.FC<LoadingPageProps> = ({ profileIconUrl, loadingStatus }) => {
   const getProgressPercentage = () => {
-    // Calculate progress based on status messages
-    const totalSteps = 8;
-    const completedSteps = loadingStatus.filter(status => 
-      status.includes('✓') || status.includes('✅') || status.includes('🎯') || status.includes('📈')
-    ).length;
-    return Math.min(Math.round((completedSteps / totalSteps) * 100), 100);
+    const stats = getStatsFromStatus();
+    // Base progress on ranked games found out of target (50)
+    const targetRankedGames = 50;
+    const rankedProgress = Math.min((stats.ranked / targetRankedGames) * 100, 100);
+    
+    // If we have valid games analyzed, use that for final progress
+    if (stats.valid > 0) {
+      return Math.min((stats.valid / stats.target) * 100, 100);
+    }
+    
+    // Otherwise use ranked games progress
+    return Math.round(rankedProgress);
   };
 
   const getCurrentStep = () => {
@@ -41,11 +47,10 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ profileIconUrl, loadingStatus
     };
   };
 
-  const stats = getStatsFromStatus();
   const progress = getProgressPercentage();
 
   return (
-    <div className="hero-section">
+    <div className="hero-section loading-page">
       <div className="loading-container">
         <div className="loading-profile">
           {profileIconUrl && (
@@ -68,55 +73,9 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ profileIconUrl, loadingStatus
           <span className="progress-text">{progress}% Complete</span>
         </div>
 
-        {/* Current Step */}
+        {/* Current Step - Only Latest Message */}
         <div className="current-step">
           {getCurrentStep()}
-        </div>
-
-        {/* Game Statistics */}
-        {(stats.ranked > 0 || stats.normal > 0 || stats.other > 0) && (
-          <div className="game-stats">
-            <h4>📊 Game Analysis Progress</h4>
-            <div className="stats-grid">
-              {stats.ranked > 0 && (
-                <div className="stat-item ranked">
-                  <span className="stat-icon">🏆</span>
-                  <span className="stat-label">Ranked</span>
-                  <span className="stat-value">{stats.ranked}</span>
-                </div>
-              )}
-              {stats.normal > 0 && (
-                <div className="stat-item normal">
-                  <span className="stat-icon">🎮</span>
-                  <span className="stat-label">Normal</span>
-                  <span className="stat-value">{stats.normal}</span>
-                </div>
-              )}
-              {stats.other > 0 && (
-                <div className="stat-item other">
-                  <span className="stat-icon">📊</span>
-                  <span className="stat-label">Other</span>
-                  <span className="stat-value">{stats.other}</span>
-                </div>
-              )}
-              {stats.valid > 0 && (
-                <div className="stat-item valid">
-                  <span className="stat-icon">✅</span>
-                  <span className="stat-label">Valid for Analysis</span>
-                  <span className="stat-value">{stats.valid}/{stats.target}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Detailed Status Log */}
-        <div className="loading-status-list">
-          {loadingStatus.map((status, idx) => (
-            <div key={idx} className="loading-status-item">
-              {status}
-            </div>
-          ))}
         </div>
       </div>
     </div>
