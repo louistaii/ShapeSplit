@@ -65,9 +65,7 @@ const SearchPage: React.FC = () => {
             context?.setProfileIconUrl(data.data.summoner.profileIconUrl);
           }
           context?.setLoadingStatus((prev) => [...prev, '✨ Analysis complete!']);
-          setTimeout(() => {
-            navigate('/results');
-          }, 800);
+          navigate('/results');
         } else if (data.type === 'error') {
           eventSource.close();
           context?.setLoadingStatus((prev) => [...prev, `❌ ${data.message}`]);
