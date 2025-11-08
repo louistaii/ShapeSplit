@@ -1057,7 +1057,7 @@
 }
 
 .archetype-name {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 0.5rem;
@@ -1065,24 +1065,24 @@
 }
 
 .archetype-similarity {
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
   color: #90EE90;
   margin-bottom: 1rem;
   font-weight: 600;
 }
 
 .archetype-description {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   color: #cccccc;
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
 .archetype-champions {
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
   color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
-  padding: 0.75rem;
+  padding: clamp(0.5rem, 2vw, 0.75rem);
   border-radius: 8px;
   border-left: 3px solid #90EE90;
 }
@@ -1217,8 +1217,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: clamp(1rem, 3vw, 1.5rem);
   text-align: center;
+  width: 100%;
+  max-width: 90%;
 }
 
 /* Gameplay Card Content */
@@ -1226,19 +1228,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: clamp(1rem, 4vw, 2rem);
   text-align: center;
 }
 
 .big-number {
-  font-size: 4rem;
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: bold;
   color: #ffffff;
   font-family: 'Bebas Neue', sans-serif;
 }
 
 .big-label {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
   color: rgba(255, 255, 255, 0.8);
   margin-top: -1rem;
 }
@@ -1262,15 +1264,14 @@
 }
 
 .mode-name {
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  font-weight: 600;
   color: #ffffff;
-  font-weight: 500;
 }
 
 .mode-winrate {
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   color: #90EE90;
-  font-weight: bold;
 }
 
 /* KDA Display */
@@ -1278,7 +1279,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .kda-value {
@@ -1289,7 +1290,7 @@
 }
 
 .kda-label {
-  font-size: 1.2rem;
+  font-size: clamp(0.8rem, 2vw, 1rem);
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -1298,34 +1299,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.2rem;
 }
 
 .winrate-number {
-  font-size: 3.5rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: bold;
   color: #90EE90;
-  font-family: 'Bebas Neue', sans-serif;
 }
 
 .winrate-label {
-  font-size: 1.2rem;
+  font-size: clamp(0.8rem, 2vw, 1rem);
   color: rgba(255, 255, 255, 0.8);
 }
 
 /* Share Button Styles */
 .share-button {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 50px;
-  height: 50px;
+  top: clamp(0.8rem, 2vw, 1.5rem);
+  right: clamp(0.8rem, 2vw, 1.5rem);
+  width: clamp(40px, 6vw, 50px);
+  height: clamp(40px, 6vw, 50px);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2vw, 1.2rem);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -1334,7 +1334,7 @@
   font-family: 'Rajdhani', sans-serif;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   user-select: none;
-  z-index: 10;
+  z-index: 15;
 }
 
 .share-button:hover {
@@ -1347,6 +1347,16 @@
 .share-button:active {
   transform: scale(0.95);
   background: rgba(255, 255, 255, 0.3);
+}
+
+.share-button svg {
+  width: clamp(16px, 3vw, 20px);
+  height: clamp(16px, 3vw, 20px);
+  transition: transform 0.2s ease;
+}
+
+.share-button:hover svg {
+  transform: rotate(15deg);
 }
 
 /* Responsive Design for Wrapped Cards */
@@ -1428,19 +1438,20 @@
 .results-wrapped {
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
   min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .wrapped-container {
-  max-width: 1200px; /* Increased from 900px to 1200px */
   width: 100%;
-  height: 700px;
+  height: calc(100vh - 2rem);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 0 2rem; /* Add padding for navigation buttons */
+  gap: 1rem;
+  max-width: 100%;
 }
 
 /* Progress Indicators */
@@ -1448,7 +1459,12 @@
   display: flex;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
 }
 
 .progress-dot {
@@ -1477,18 +1493,21 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative; /* Add position relative for absolute positioning of nav buttons */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 80px; /* Space for navigation buttons */
 }
 
 /* Main content area for navigation layout */
 .main-content-area {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 0;
   flex: 1;
   width: 100%;
-  max-width: 1200px; /* Increased from default to accommodate wider cards */
-  margin: 0 auto;
+  height: 100%;
+  position: relative;
 }
 
 .card-slider {
@@ -1518,33 +1537,34 @@
 .wrapped-card-content {
   width: 100%;
   height: 100%;
-  padding: 3rem 2rem;
+  padding: clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .card-title {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 2rem);
   font-weight: 500;
   color: #ffffff;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1rem, 3vh, 2rem);
   font-family: 'Bebas Neue', sans-serif;
   letter-spacing: 0.1em;
 }
 
 /* Navigation Buttons */
 .nav-button {
-  width: 60px;
-  height: 60px;
+  width: clamp(50px, 5vw, 70px);
+  height: clamp(50px, 5vw, 70px);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 2vw, 1.5rem);
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1555,19 +1575,30 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   user-select: none;
   opacity: 0.8;
-  flex-shrink: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.nav-button.prev {
+  left: 10px;
+}
+
+.nav-button.next {
+  right: 10px;
 }
 
 .nav-button:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.05);
+  transform: translateY(-50%) scale(1.05);
   box-shadow: 0 8px 40px rgba(255, 255, 255, 0.15);
   opacity: 1;
 }
 
 .nav-button:active {
-  transform: scale(0.95);
+  transform: translateY(-50%) scale(0.95);
   background: rgba(255, 255, 255, 0.3);
 }
 
@@ -1587,305 +1618,395 @@
   opacity: 0.2;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 1024px) {
-  .main-content-area {
-    max-width: 100%; /* Use full width on tablets */
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content-area {
-    gap: 1rem;
+/* Additional responsive breakpoints for better scaling */
+@media (max-width: 360px) {
+  .results-wrapped {
+    padding: 0.1rem;
   }
   
-  .nav-button {
-    width: 50px;
-    height: 50px;
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-content-area {
-    gap: 0.5rem;
+  .wrapped-container {
+    height: calc(100vh - 0.2rem);
   }
   
-  .nav-button {
-    width: 45px;
-    height: 45px;
-    font-size: 1rem;
-  }
-}
-
-/* Share Button Styles */
-.share-button {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Rajdhani', sans-serif;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  user-select: none;
-  z-index: 10;
-}
-
-.share-button:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.1);
-  box-shadow: 0 8px 40px rgba(255, 255, 255, 0.15);
-}
-
-.share-button:active {
-  transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Share Modal Styles */
-.share-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
-}
-
-.share-modal {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 2rem;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  color: #ffffff;
-  font-family: 'Rajdhani', sans-serif;
-}
-
-.share-modal h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: #ffffff;
-  font-family: 'Bebas Neue', sans-serif;
-}
-
-.share-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.share-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  color: #ffffff;
-}
-
-.share-option:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  color: #ffffff;
-}
-
-.share-option-icon {
-  font-size: 2rem;
-}
-
-.share-option-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.share-modal-close {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: #ffffff;
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem;
-}
-
-.share-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Mobile responsiveness for share button */
-@media (max-width: 768px) {
-  .share-button {
-    width: 45px;
-    height: 45px;
-    font-size: 1.1rem;
-    top: 1rem;
-    right: 1rem;
+  .card-container {
+    margin: 0 30px;
+    border-radius: 10px;
   }
   
-  .share-options {
+  .wrapped-card-content {
+    padding: clamp(0.5rem, 3vw, 1rem);
+  }
+  
+  .nav-button.prev {
+    left: 2px;
+  }
+  
+  .nav-button.next {
+    right: 2px;
+  }
+  
+  .players-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gameplay-insights {
     grid-template-columns: 1fr;
   }
 }
 
-/* Wrapped Card Specific Styles */
-.traits-display {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 500px;
+@media (min-height: 900px) {
+  .wrapped-container {
+    height: calc(100vh - 4rem);
+  }
+  
+  .results-wrapped {
+    padding: 2rem;
+  }
 }
 
-.trait-item {
+@media (min-width: 1400px) {
+  .card-container {
+    margin: 0 100px;
+  }
+  
+  .nav-button.prev {
+    left: 20px;
+  }
+  
+  .nav-button.next {
+    right: 20px;
+  }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .results-wrapped {
+    padding: 0.25rem;
+  }
+  
+  .wrapped-container {
+    height: calc(100vh - 0.5rem);
+    gap: 0.5rem;
+  }
+  
+  .progress-indicators {
+    bottom: 5px;
+    padding: 0.25rem 0;
+  }
+  
+  .wrapped-card-content {
+    padding: clamp(0.5rem, 2vw, 1rem);
+  }
+  
+  .players-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .gameplay-insights {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Digital Twin Chat Card Styles */
+.digital-twin-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  width: 100%;
+  gap: clamp(0.8rem, 2vw, 1.2rem);
+  margin-bottom: clamp(1rem, 3vh, 1.5rem);
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.trait-name {
-  min-width: 140px;
-  font-weight: 600;
+.twin-profile-icon {
+  width: clamp(50px, 8vw, 70px);
+  height: clamp(50px, 8vw, 70px);
+  border-radius: 50%;
+  border: 3px solid rgba(144, 238, 144, 0.5);
+  box-shadow: 0 0 15px rgba(144, 238, 144, 0.3);
+  flex-shrink: 0;
+}
+
+.twin-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.twin-title {
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  font-weight: bold;
   color: #ffffff;
-  font-size: 1rem;
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
 }
 
-.trait-bar {
-  flex: 1;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+.twin-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #90EE90;
+  box-shadow: 0 0 8px rgba(144, 238, 144, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: clamp(300px, 50vh, 400px);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
 }
 
-.trait-fill {
+.chat-messages {
+  flex: 1;
+  padding: clamp(0.8rem, 2vw, 1rem);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1.5vw, 0.8rem);
+  scroll-behavior: smooth;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 85%;
+  animation: fadeInUp 0.3s ease;
+}
+
+.user-message {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.ai-message {
+  align-self: flex-start;
+}
+
+.message-avatar {
+  width: clamp(28px, 4vw, 32px);
+  height: clamp(28px, 4vw, 32px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.message-avatar img {
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
-  background-size: 500% 100%;
-  animation: gradientShift 3s ease infinite;
-  transition: width 1s ease;
-  border-radius: 10px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
-.trait-score {
-  min-width: 80px;
-  text-align: right;
-  font-weight: bold;
-  color: #90EE90;
-  font-size: 1rem;
+.user-avatar {
+  background: rgba(255, 255, 255, 0.1);
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Welcome Card Styles */
-.welcome-title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 1rem;
-  font-family: 'Bebas Neue', sans-serif;
-}
-
-.welcome-name {
-  font-size: 2rem;
-  color: #90EE90;
-  font-weight: 600;
-  margin-bottom: 2rem;
-}
-
-.welcome-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.5;
-}
-
-/* Other wrapped card content styles */
-.archetype-display {
+.message-content {
+  background: rgba(255, 255, 255, 0.1);
+  padding: clamp(0.6rem, 1.5vw, 0.8rem);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  text-align: center;
+  gap: 0.3rem;
 }
 
-.big-number {
-  font-size: 4rem;
-  font-weight: bold;
+.user-message .message-content {
+  background: rgba(144, 238, 144, 0.2);
+  border-color: rgba(144, 238, 144, 0.3);
+}
+
+.message-content p {
+  margin: 0;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  line-height: 1.4;
   color: #ffffff;
-  font-family: 'Bebas Neue', sans-serif;
 }
 
-.big-label {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: -1rem;
+.message-time {
+  font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+  color: rgba(255, 255, 255, 0.5);
+  align-self: flex-end;
 }
 
-.kda-display {
+.typing-message .message-content {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.8rem;
+}
+
+.typing-indicator {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.3rem;
 }
 
-.kda-value {
-  font-size: 3rem;
-  font-weight: bold;
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: typingDot 1.5s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: clamp(0.6rem, 1.5vw, 0.8rem);
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: clamp(0.5rem, 1.2vw, 0.6rem) clamp(0.8rem, 2vw, 1rem);
   color: #ffffff;
-  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
 }
 
-.kda-label {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.winrate-display {
+.chat-input:focus {
+  border-color: rgba(144, 238, 144, 0.5);
+  box-shadow: 0 0 10px rgba(144, 238, 144, 0.2);
+}
+
+.chat-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.send-button {
+  width: clamp(35px, 6vw, 40px);
+  height: clamp(35px, 6vw, 40px);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.8), rgba(144, 238, 144, 0.6));
+  border: none;
+  color: #ffffff;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(144, 238, 144, 0.3);
 }
 
-.winrate-number {
-  font-size: 3.5rem;
-  font-weight: bold;
-  color: #90EE90;
-  font-family: 'Bebas Neue', sans-serif;
+.send-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(144, 238, 144, 1), rgba(144, 238, 144, 0.8));
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(144, 238, 144, 0.4);
 }
 
-.winrate-label {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
+.send-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.send-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+/* Responsive adjustments for chat */
+@media (max-width: 768px) {
+  .chat-container {
+    height: clamp(250px, 45vh, 350px);
+  }
+  
+  .digital-twin-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.8rem;
+  }
+  
+  .message {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-container {
+    height: clamp(200px, 40vh, 300px);
+  }
+  
+  .message {
+    max-width: 95%;
+  }
+  
+  .chat-input-container {
+    padding: 0.5rem;
+  }
 }

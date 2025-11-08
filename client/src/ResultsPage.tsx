@@ -158,6 +158,19 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   const [shareCardData, setShareCardData] = useState<{ title: string; content: string } | null>(null);
   const cardContainerRef = useRef<HTMLDivElement>(null);
   
+  // Chat functionality state
+  const [chatMessages, setChatMessages] = useState<Array<{id: string, text: string, isUser: boolean, timestamp: Date}>>([
+    {
+      id: '1',
+      text: `Hello! I'm ${playerData?.account?.gameName || 'Player'}'s digital twin. Ask me anything about their League of Legends gameplay!`,
+      isUser: false,
+      timestamp: new Date()
+    }
+  ]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
+  
   // Calculate cards length early for useEffect dependency
   const cardsLength = React.useMemo(() => {
     if (!playerData) return 0;
@@ -199,6 +212,13 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [cardsLength, playerData]);
+
+  // Scroll to bottom when new messages are added
+  React.useEffect(() => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
   
   if (!playerData) return null;
   
@@ -206,28 +226,176 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   const statsByMode = getStatsByGameMode(playerData.matches, puuid);
   const latestPlayers = getLatestUniquePlayers(playerData.matches, puuid);
 
+  // Chat functionality functions
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim()) return;
+    
+    const userMessage = {
+      id: Date.now().toString(),
+      text: currentMessage,
+      isUser: true,
+      timestamp: new Date()
+    };
+    
+    setChatMessages(prev => [...prev, userMessage]);
+    setCurrentMessage('');
+    setIsTyping(true);
+    
+    // Simulate AI response with game data context
+    setTimeout(() => {
+      const aiResponse = generateAIResponse(currentMessage, playerData);
+      const aiMessage = {
+        id: (Date.now() + 1).toString(),
+        text: aiResponse,
+        isUser: false,
+        timestamp: new Date()
+      };
+      
+      setChatMessages(prev => [...prev, aiMessage]);
+      setIsTyping(false);
+    }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+  };
+
+  const generateAIResponse = (userMessage: string, data: PlayerData | null): string => {
+    const message = userMessage.toLowerCase();
+    const gameName = data?.account?.gameName || 'Player';
+    
+    // Basic responses based on message content
+    if (message.includes('rank') || message.includes('tier')) {
+      const soloRank = data?.ranked?.find(r => r.queueType === 'RANKED_SOLO_5x5');
+      if (soloRank) {
+        return `${gameName} is currently ${soloRank.tier} ${soloRank.rank} with ${soloRank.leaguePoints} LP. They have a ${Math.round((soloRank.wins / (soloRank.wins + soloRank.losses)) * 100)}% win rate this season!`;
+      }
+      return `${gameName} doesn't have a current solo queue ranking, but they're still climbing!`;
+    }
+    
+    if (message.includes('champion') || message.includes('main')) {
+      const topChampion = data?.championMastery?.champions?.[0];
+      if (topChampion) {
+        return `${gameName}'s highest mastery champion is ${topChampion.championName || `Champion ${topChampion.championId}`} with ${topChampion.championPoints?.toLocaleString()} mastery points!`;
+      }
+      return `${gameName} plays a variety of champions. Versatility is key!`;
+    }
+    
+    if (message.includes('games') || message.includes('matches')) {
+      const matchCount = data?.matches?.length || 0;
+      return `I've analyzed ${matchCount} recent games from ${gameName}'s match history. They've been quite active lately!`;
+    }
+    
+    if (message.includes('personality') || message.includes('playstyle')) {
+      const archetype = data?.personality?.personality?.archetype?.name;
+      if (archetype) {
+        return `Based on ${gameName}'s gameplay patterns, they exhibit traits of a ${archetype} player. This shows in their decision-making and champion preferences.`;
+      }
+      return `${gameName} has a unique playstyle that's hard to categorize - that's what makes them special!`;
+    }
+    
+    if (message.includes('level')) {
+      const level = data?.summoner?.summonerLevel;
+      if (level) {
+        return `${gameName} is currently level ${level}. That's a lot of experience on the Rift!`;
+      }
+      return `${gameName} has been playing League for quite some time!`;
+    }
+    
+    // Default responses
+    const responses = [
+      `That's an interesting question about ${gameName}! Their gameplay shows consistent improvement over time.`,
+      `From what I can see in ${gameName}'s data, they have some impressive patterns in their play.`,
+      `${gameName} would probably say that every game is a learning opportunity!`,
+      `Looking at ${gameName}'s match history, I can tell they're passionate about improving their gameplay.`,
+      `That's a great question! ${gameName}'s League journey has been quite unique.`
+    ];
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   // Create cards array
   const cards: Card[] = [
     {
-      id: 'welcome',
-      title: 'Welcome',
+      id: 'digital-twin',
+      title: 'Digital Twin',
       component: (
-        <div className="wrapped-card welcome-card">
+        <div className="wrapped-card digital-twin-card">
           <div className="wrapped-card-content">
-            <div className="welcome-content">
-              <div className="player-profile">
-                {playerData.summoner?.profileIconUrl && (
-                  <img src={playerData.summoner.profileIconUrl} alt="Profile Icon" className="welcome-profile-icon" />
-                )}
-                <h1 className="welcome-title">Your League Wrapped</h1>
-                <h2 className="welcome-name">{playerData.account?.gameName}#{playerData.account?.tagLine}</h2>
-                <p className="welcome-level">Level {playerData.summoner?.summonerLevel}</p>
-              </div>
-              <div className="welcome-stats">
-                <div className="welcome-stat">
-                  <span className="stat-number">{playerData.matches?.length || 0}</span>
-                  <span className="stat-label">Games Analyzed</span>
+            <div className="digital-twin-header">
+              {playerData.summoner?.profileIconUrl && (
+                <img src={playerData.summoner.profileIconUrl} alt="Profile Icon" className="twin-profile-icon" />
+              )}
+              <div className="twin-info">
+                <h1 className="twin-title">{playerData.account?.gameName}'s Digital Twin</h1>
+                <div className="twin-status">
+                  <div className="status-indicator"></div>
+                  <span>Online</span>
                 </div>
+              </div>
+            </div>
+            
+            <div className="chat-container">
+              <div className="chat-messages" ref={chatMessagesRef}>
+                {chatMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`message ${message.isUser ? 'user-message' : 'ai-message'}`}
+                  >
+                    {!message.isUser && (
+                      <div className="message-avatar">
+                        <img src={playerData.summoner?.profileIconUrl} alt="AI Avatar" />
+                      </div>
+                    )}
+                    <div className="message-content">
+                      <p>{message.text}</p>
+                      <span className="message-time">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    {message.isUser && (
+                      <div className="message-avatar user-avatar">
+                        👤
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="message ai-message typing-message">
+                    <div className="message-avatar">
+                      <img src={playerData.summoner?.profileIconUrl} alt="AI Avatar" />
+                    </div>
+                    <div className="message-content">
+                      <div className="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="chat-input-container">
+                <input
+                  type="text"
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask me about your gameplay..."
+                  className="chat-input"
+                  disabled={isTyping}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isTyping || !currentMessage.trim()}
+                  className="send-button"
+                >
+                  ➤
+                </button>
               </div>
             </div>
           </div>
@@ -549,7 +717,9 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
               onClick={() => handleShare(currentCardIndex)}
               title="Share this card"
             >
-              📤
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 16.08C17.24 16.08 16.56 16.38 16.04 16.85L8.91 12.7C8.96 12.47 9 12.24 9 12C9 11.76 8.96 11.53 8.91 11.3L15.96 7.19C16.5 7.69 17.21 8 18 8C19.66 8 21 6.66 21 5C21 3.34 19.66 2 18 2C16.34 2 15 3.34 15 5C15 5.24 15.04 5.47 15.09 5.7L8.04 9.81C7.5 9.31 6.79 9 6 9C4.34 9 3 10.34 3 12C3 13.66 4.34 15 6 15C6.79 15 7.5 14.69 8.04 14.19L15.16 18.34C15.11 18.55 15.08 18.77 15.08 19C15.08 20.61 16.39 21.92 18 21.92C19.61 21.92 20.92 20.61 20.92 19C20.92 17.39 19.61 16.08 18 16.08Z" fill="currentColor"/>
+              </svg>
             </button>
             
             <div 
