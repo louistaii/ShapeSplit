@@ -1,6 +1,289 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 
+// Matchmaking Card Component
+interface MatchmakingCardProps {
+  playerData: PlayerData | null;
+}
+
+interface MatchmakingResult {
+  success: boolean;
+  player1: {
+    gameName: string;
+    tagLine: string;
+    profileIconUrl?: string;
+    personality: any;
+  };
+  player2: {
+    gameName: string;
+    tagLine: string;
+    profileIconUrl?: string;
+    personality: any;
+    ranked?: any[];
+    championMastery?: any;
+  };
+  compatibility: {
+    score: number;
+    level: string;
+    strengths: string[];
+    challenges: string[];
+    recommendation: string;
+  };
+}
+
+const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
+  const [searchInput, setSearchInput] = useState('');
+  const [region, setRegion] = useState('na1');
+  const [isSearching, setIsSearching] = useState(false);
+  const [matchResult, setMatchResult] = useState<MatchmakingResult | null>(null);
+  const [error, setError] = useState<string>('');
+
+  // Region options (same as SearchPage)
+  const regions = [
+    { value: 'na1', label: 'North America' },
+    { value: 'euw1', label: 'Europe West' },
+    { value: 'eun1', label: 'Europe Nordic & East' },
+    { value: 'kr', label: 'Korea' },
+    { value: 'jp1', label: 'Japan' },
+    { value: 'br1', label: 'Brazil' },
+    { value: 'la1', label: 'Latin America North' },
+    { value: 'la2', label: 'Latin America South' },
+    { value: 'oc1', label: 'Oceania' },
+    { value: 'tr1', label: 'Turkey' },
+    { value: 'ru', label: 'Russia' }
+  ];
+
+  const handleSearch = async () => {
+    if (!searchInput.trim()) return;
+    
+    const [gameName, tagLine] = searchInput.split('#');
+    if (!gameName || !tagLine) {
+      setError('Please enter a valid Riot ID (e.g. PlayerName#TAG)');
+      return;
+    }
+
+    setIsSearching(true);
+    setError('');
+    setMatchResult(null);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/matchmaking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          player1Data: playerData,
+          player2GameName: gameName.trim(),
+          player2TagLine: tagLine.trim(),
+          region: region
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to calculate compatibility');
+      }
+
+      setMatchResult(data);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const getCompatibilityColor = (score: number) => {
+    if (score >= 80) return '#4ade80'; // green
+    if (score >= 65) return '#3b82f6'; // blue  
+    if (score >= 50) return '#f59e0b'; // yellow
+    if (score >= 35) return '#f97316'; // orange
+    return '#ef4444'; // red
+  };
+
+  const reset = () => {
+    setMatchResult(null);
+    setSearchInput('');
+    setError('');
+    setRegion('na1');
+  };
+
+  if (matchResult) {
+    return (
+      <div className="wrapped-card matchmaking-card">
+        <div className="wrapped-card-content">
+          <div className="matchmaking-header">
+            <h3 className="card-title">Matchmake</h3>
+            <button onClick={reset} className="reset-button">Try Another</button>
+          </div>
+
+          <div className="compatibility-result">
+            <div className="players-comparison">
+              <div className="player-info">
+                {matchResult.player1.profileIconUrl && (
+                  <img src={matchResult.player1.profileIconUrl} alt="Player 1" className="player-avatar" />
+                )}
+                <div className="player-details">
+                  <div className="player-name">{matchResult.player1.gameName}</div>
+                  <div className="player-tag">#{matchResult.player1.tagLine}</div>
+                  <div className="player-archetype">
+                    {matchResult.player1.personality?.personality?.archetype?.name || 'Unknown'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="compatibility-score-container">
+                <div 
+                  className="compatibility-score"
+                  style={{ color: getCompatibilityColor(matchResult.compatibility.score) }}
+                >
+                  {matchResult.compatibility.score}%
+                </div>
+                <div className="compatibility-level">{matchResult.compatibility.level}</div>
+                <div className="compatibility-hearts">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span 
+                      key={i} 
+                      className={`heart ${i < Math.ceil(matchResult.compatibility.score / 20) ? 'filled' : ''}`}
+                    >
+                      💖
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="player-info">
+                {matchResult.player2.profileIconUrl && (
+                  <img src={matchResult.player2.profileIconUrl} alt="Player 2" className="player-avatar" />
+                )}
+                <div className="player-details">
+                  <div className="player-name">{matchResult.player2.gameName}</div>
+                  <div className="player-tag">#{matchResult.player2.tagLine}</div>
+                  <div className="player-archetype">
+                    {matchResult.player2.personality?.personality?.archetype?.name || 'Unknown'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="compatibility-details">
+              <div className="recommendation">
+                <h4>🎯 Recommendation</h4>
+                <p>{matchResult.compatibility.recommendation}</p>
+              </div>
+
+              {matchResult.compatibility.strengths.length > 0 && (
+                <div className="strengths">
+                  <h4>💪 Strengths</h4>
+                  <ul>
+                    {matchResult.compatibility.strengths.map((strength, i) => (
+                      <li key={i}>{strength}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {matchResult.compatibility.challenges.length > 0 && (
+                <div className="challenges">
+                  <h4>⚠️ Things to Watch</h4>
+                  <ul>
+                    {matchResult.compatibility.challenges.map((challenge, i) => (
+                      <li key={i}>{challenge}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="wrapped-card matchmaking-card">
+      <div className="wrapped-card-content">
+        <h3 className="card-title">Matchmake</h3>
+        <div className="matchmaking-search">
+          <p className="search-description">
+            Check your compatibility with another summoner!
+          </p>
+          
+          <div className="matchmaking-search-form">
+            <div className="matchmaking-region-selector">
+              <label htmlFor="matchmaking-region">Region:</label>
+              <select
+                id="matchmaking-region"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                className="matchmaking-region-select"
+                disabled={isSearching}
+              >
+                {regions.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="matchmaking-input-group">
+              <input
+                type="text"
+                value={searchInput.split('#')[0] || ''}
+                onChange={(e) => {
+                  const tagPart = searchInput.split('#')[1] || '';
+                  setSearchInput(`${e.target.value}${tagPart ? '#' + tagPart : ''}`);
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Game Name"
+                className="matchmaking-search-input"
+                disabled={isSearching}
+              />
+              <span className="matchmaking-separator">#</span>
+              <input
+                type="text"
+                value={searchInput.split('#')[1] || ''}
+                onChange={(e) => {
+                  const gamePart = searchInput.split('#')[0] || '';
+                  setSearchInput(`${gamePart}#${e.target.value}`);
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Tag"
+                className="matchmaking-search-input matchmaking-tag-input"
+                disabled={isSearching}
+              />
+            </div>
+            <button
+              onClick={handleSearch}
+              disabled={isSearching || !searchInput.trim() || !searchInput.includes('#')}
+              className="matchmaking-search-button"
+            >
+              {isSearching ? 'Searching...' : 'Find Match'}
+            </button>
+          </div>
+
+          {error && (
+            <div className="error-message">
+              ❌ {error}
+            </div>
+          )}
+
+          {isSearching && (
+            <div className="loading-message">
+              <div className="loading-spinner"></div>
+              <p>Analyzing compatibility... This may take a moment!</p>
+            </div>
+          )}
+
+    
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface Match {
   metadata?: { matchId: string };
   info?: {
@@ -181,11 +464,8 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
     const statsByMode = getStatsByGameMode(playerData.matches, puuid);
     count += Object.keys(statsByMode).length;
     
-    // Add recent players card count
-    const latestPlayers = getLatestUniquePlayers(playerData.matches, puuid);
-    if (latestPlayers.length > 0) {
-      count += 1;
-    }
+    // Add matchmaking card count (always present)
+    count += 1;
     
     return count;
   }, [playerData]);
@@ -524,35 +804,12 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
     });
   }
 
-  // Add recent players card
-  if (latestPlayers.length > 0) {
-    cards.push({
-      id: 'players',
-      title: 'Players',
-      component: (
-        <div className="wrapped-card players-card">
-          <div className="wrapped-card-content">
-            <h3 className="card-title">🤝 Recent Players</h3>
-            <div className="players-display">
-              <div className="players-grid">
-                {latestPlayers.slice(0, 6).map((player, i) => (
-                  <div key={player.puuid || i} className="player-card">
-                    {player.championImageUrl && (
-                      <img src={player.championImageUrl} alt={player.championName} className="player-champion-icon" />
-                    )}
-                    <div className="player-details">
-                      <span className="player-name">{player.summonerName}</span>
-                      <span className="player-champion">{player.championName}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    });
-  }
+  // Add matchmaking card
+  cards.push({
+    id: 'matchmaking',
+    title: 'Matchmaking',
+    component: <MatchmakingCard playerData={playerData} />
+  });
 
   // Navigation functions
   const nextCard = () => {

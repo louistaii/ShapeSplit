@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increase JSON payload limit for matchmaking
 
 // API Routes
 app.get('/api/health', (req, res) => {
@@ -299,6 +299,288 @@ app.get('/api/regions', (req, res) => {
         ]
     });
 });
+
+// Matchmaking endpoint - calculates compatibility between two players
+app.post('/api/matchmaking', async (req, res) => {
+    const { player1Data, player2GameName, player2TagLine, region = 'na1' } = req.body;
+    
+    if (!player1Data || !player2GameName || !player2TagLine) {
+        return res.status(400).json({ 
+            error: 'Missing required fields: player1Data, player2GameName, player2TagLine' 
+        });
+    }
+
+    try {
+        // Use same region mapping logic as main search
+        const regionToRoutingMap = {
+            'na1': 'americas',
+            'br1': 'americas', 
+            'la1': 'americas',
+            'la2': 'americas',
+            'kr': 'asia',
+            'jp1': 'asia',
+            'euw1': 'europe',
+            'eun1': 'europe',
+            'tr1': 'europe',
+            'ru': 'europe',
+            'oc1': 'sea',
+            'ph2': 'sea',
+            'sg2': 'sea',
+            'th2': 'sea',
+            'tw2': 'sea',
+            'vn2': 'sea'
+        };
+
+        // Use the region from request (defaults to na1 if not provided)
+        const routingRegion = regionToRoutingMap[region] || 'americas';
+        
+        const fetcher = new LeagueDataFetcher(process.env.RIOT_API_KEY, region, routingRegion);
+        const analyzer = new PersonalityAnalyzer();
+
+        // Only fetch player 2 data since player 1 data is already provided
+        const player2Data = await fetcher.getCompletePlayerData(
+            player2GameName, 
+            player2TagLine, 
+            100, // maxFetch - same as main search
+            50,  // targetAnalyze - same as main search
+            true // includeRankedMatches - same as main search
+        );
+
+        // Analyze both players' personalities
+        // Player 1 personality should already be analyzed, but re-analyze if needed
+        let player1Personality = player1Data.personality;
+        if (!player1Personality || player1Personality.error) {
+            try {
+                player1Personality = analyzer.analyzePersonality(player1Data.matches, player1Data.account?.puuid);
+            } catch (analysisError) {
+                player1Personality = { error: 'Analysis failed', message: analysisError.message };
+            }
+        }
+        
+        // Analyze player 2 personality
+        let player2Personality;
+        try {
+            player2Personality = analyzer.analyzePersonality(player2Data.matches, player2Data.account?.puuid);
+        } catch (analysisError) {
+            player2Personality = { error: 'Analysis failed', message: analysisError.message };
+        }
+
+        // Calculate compatibility
+        const compatibility = calculateCompatibility(player1Personality, player2Personality, player1Data, player2Data);
+
+        res.json({
+            success: true,
+            player1: {
+                gameName: player1Data.account?.gameName,
+                tagLine: player1Data.account?.tagLine,
+                profileIconUrl: player1Data.summoner?.profileIconUrl,
+                personality: player1Personality
+            },
+            player2: {
+                gameName: player2Data.account?.gameName,
+                tagLine: player2Data.account?.tagLine,
+                profileIconUrl: player2Data.summoner?.profileIconUrl,
+                personality: player2Personality,
+                ranked: player2Data.ranked,
+                championMastery: player2Data.championMastery
+            },
+            compatibility
+        });
+
+    } catch (error) {
+        console.error('Matchmaking error:', error);
+        res.status(500).json({ 
+            error: error.message || 'Failed to calculate compatibility',
+            details: error.response?.data || null
+        });
+    }
+});
+
+// Compatibility calculation function
+function calculateCompatibility(player1Personality, player2Personality, player1Data, player2Data) {
+    let score = 50; // Base compatibility score
+    let reasons = [];
+    let strengths = [];
+    let challenges = [];
+
+    // Check if both have valid personality data
+    if (!player1Personality?.personality || !player2Personality?.personality || 
+        player1Personality.error || player2Personality.error) {
+        
+        let reasonMessage = 'Not enough data to calculate accurate compatibility';
+        if (player1Personality?.error && player2Personality?.error) {
+            reasonMessage = 'Both players need more ranked/normal games for personality analysis';
+        } else if (player1Personality?.error) {
+            reasonMessage = 'First player needs more ranked/normal games for personality analysis';
+        } else if (player2Personality?.error) {
+            reasonMessage = 'Second player needs more ranked/normal games for personality analysis';
+        }
+        
+        return {
+            score: 50,
+            level: 'Unknown',
+            reasons: [reasonMessage],
+            strengths: [],
+            challenges: [],
+            recommendation: 'Play more ranked or normal games individually to unlock personality insights!'
+        };
+    }
+
+    const p1Traits = player1Personality.personality.bigFive;
+    const p2Traits = player2Personality.personality.bigFive;
+    const p1Stats = player1Personality.stats?.features || {};
+    const p2Stats = player2Personality.stats?.features || {};
+
+    // Personality trait compatibility (Big Five)
+    const traitDifferences = {};
+    let totalTraitDiff = 0;
+    
+    Object.keys(p1Traits).forEach(trait => {
+        const diff = Math.abs(p1Traits[trait] - p2Traits[trait]);
+        traitDifferences[trait] = diff;
+        totalTraitDiff += diff;
+    });
+
+    const avgTraitDiff = totalTraitDiff / Object.keys(p1Traits).length;
+    
+    // Complementary vs Similar preferences
+    if (avgTraitDiff < 20) {
+        score += 15;
+        strengths.push('Very similar personalities - you think alike!');
+    } else if (avgTraitDiff < 40) {
+        score += 10;
+        strengths.push('Balanced personality differences - good synergy potential');
+    } else {
+        score -= 5;
+        challenges.push('Very different personalities - may require extra communication');
+    }
+
+    // Specific trait analysis
+    // Agreeableness compatibility (both high = good team players)
+    if (p1Traits.Agreeableness > 70 && p2Traits.Agreeableness > 70) {
+        score += 10;
+        strengths.push('Both are team-oriented and cooperative');
+    }
+    
+    // Conscientiousness balance (one organized, one flexible can work well)
+    const conscDiff = Math.abs(p1Traits.Conscientiousness - p2Traits.Conscientiousness);
+    if (conscDiff > 30 && conscDiff < 60) {
+        score += 8;
+        strengths.push('Good balance of planning and adaptability');
+    }
+
+    // Extraversion compatibility for communication
+    if (Math.abs(p1Traits.Extraversion - p2Traits.Extraversion) < 30) {
+        score += 5;
+        strengths.push('Similar communication styles');
+    }
+
+    // Playstyle compatibility
+    if (p1Stats.primaryRole && p2Stats.primaryRole) {
+        if (p1Stats.primaryRole !== p2Stats.primaryRole) {
+            score += 15;
+            strengths.push(`Complementary roles: ${p1Stats.primaryRole} + ${p2Stats.primaryRole}`);
+        } else {
+            score -= 5;
+            challenges.push(`Both prefer ${p1Stats.primaryRole} - role flexibility needed`);
+        }
+    }
+
+    // Aggression index compatibility
+    if (p1Stats.aggressionIndex && p2Stats.aggressionIndex) {
+        const aggrDiff = Math.abs(p1Stats.aggressionIndex - p2Stats.aggressionIndex);
+        if (aggrDiff < 0.3) {
+            score += 8;
+            strengths.push('Similar aggression levels - good fight coordination');
+        } else if (aggrDiff > 0.6) {
+            score -= 3;
+            challenges.push('Very different aggression styles - sync your engages');
+        }
+    }
+
+    // KDA compatibility (not too different skill levels)
+    if (p1Stats.avgKda && p2Stats.avgKda) {
+        const kdaDiff = Math.abs(p1Stats.avgKda - p2Stats.avgKda);
+        if (kdaDiff < 0.5) {
+            score += 5;
+            strengths.push('Similar skill levels');
+        } else if (kdaDiff > 1.5) {
+            score -= 8;
+            challenges.push('Different skill levels - mentor/learning opportunity');
+        }
+    }
+
+    // Champion diversity compatibility
+    if (p1Stats.championDiversity && p2Stats.championDiversity) {
+        const diversityDiff = Math.abs(p1Stats.championDiversity - p2Stats.championDiversity);
+        if (diversityDiff < 0.3) {
+            score += 5;
+            strengths.push('Similar champion pool flexibility');
+        }
+    }
+
+    // Archetype compatibility
+    const p1Archetype = player1Personality.personality.archetype.name;
+    const p2Archetype = player2Personality.personality.archetype.name;
+    
+    // Define archetype synergies
+    const synergies = {
+        'Hero': ['Caregiver', 'Sage', 'Ruler'],
+        'Caregiver': ['Hero', 'Innocent', 'Lover'],
+        'Sage': ['Hero', 'Creator', 'Magician'],
+        'Explorer': ['Rebel', 'Creator', 'Magician'],
+        'Rebel': ['Explorer', 'Jester'],
+        'Creator': ['Sage', 'Explorer', 'Magician'],
+        'Magician': ['Sage', 'Creator', 'Ruler'],
+        'Ruler': ['Hero', 'Sage', 'Magician'],
+        'Innocent': ['Caregiver', 'Lover'],
+        'Lover': ['Caregiver', 'Innocent'],
+        'Jester': ['Rebel', 'Explorer'],
+        'Orphan': ['Caregiver', 'Hero']
+    };
+
+    if (synergies[p1Archetype]?.includes(p2Archetype)) {
+        score += 12;
+        strengths.push(`${p1Archetype} + ${p2Archetype} archetypes work great together!`);
+    } else if (p1Archetype === p2Archetype) {
+        score += 5;
+        strengths.push(`Both ${p1Archetype} types - you understand each other`);
+    }
+
+    // Cap the score
+    score = Math.max(0, Math.min(100, score));
+
+    // Determine compatibility level
+    let level;
+    if (score >= 80) level = 'Excellent';
+    else if (score >= 65) level = 'Very Good';
+    else if (score >= 50) level = 'Good';
+    else if (score >= 35) level = 'Fair';
+    else level = 'Challenging';
+
+    // Generate recommendation
+    let recommendation;
+    if (score >= 80) {
+        recommendation = 'Perfect duo queue partners! Your playstyles complement each other beautifully.';
+    } else if (score >= 65) {
+        recommendation = 'Great compatibility! You should have excellent synergy in most games.';
+    } else if (score >= 50) {
+        recommendation = 'Solid partnership potential. Focus on communication and you\'ll do great!';
+    } else if (score >= 35) {
+        recommendation = 'You can make it work with good communication and understanding each other\'s style.';
+    } else {
+        recommendation = 'Very different styles, but opposites can attract! Be patient and learn from each other.';
+    }
+
+    return {
+        score: Math.round(score),
+        level,
+        reasons: reasons,
+        strengths,
+        challenges,
+        recommendation
+    };
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {

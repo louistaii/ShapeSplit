@@ -1293,6 +1293,397 @@
   line-height: 1.2;
 }
 
+/* Matchmaking Card Styles */
+.matchmaking-card .wrapped-card-content {
+  padding: 2rem;
+}
+
+.matchmaking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.reset-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.matchmaking-search {
+  text-align: center;
+}
+
+.search-description {
+  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+}
+
+/* Matchmaking Region Selector */
+.matchmaking-region-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.matchmaking-region-selector label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.matchmaking-region-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #ffffff;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  font-family: 'Rajdhani', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.matchmaking-region-select:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.matchmaking-region-select:focus {
+  outline: none;
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.matchmaking-region-select option {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Matchmaking Search Form - styled like main search */
+.matchmaking-search-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.matchmaking-search-form:hover,
+.matchmaking-search-form:focus-within {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.matchmaking-input-group {
+  display: flex;
+  align-items: center;
+gap: 0.5rem;
+  flex: 1;
+}
+
+.matchmaking-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  font-family: 'Rajdhani', sans-serif;
+  transition: all 0.3s ease;
+}
+
+
+.matchmaking-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.matchmaking-search-form:hover .matchmaking-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.matchmaking-tag-input {
+  width: 80px;
+}
+
+
+.matchmaking-separator {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.2rem;
+  font-weight: normal;
+  transition: all 0.3s ease;
+}
+
+.matchmaking-search-form:hover .matchmaking-separator {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.matchmaking-search-button {
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.matchmaking-search-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.matchmaking-search-button:disabled {
+  background: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-message {
+  color: #ef4444;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+}
+
+loading-message {
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.matchmaking-tips {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.matchmaking-tips h4 {
+  margin-bottom: 1rem;
+  color: #f59e0b;
+}
+
+.matchmaking-tips ul {
+  list-style: none;
+  padding: 0;
+}
+
+.matchmaking-tips li {
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+
+.compatibility-result {
+	text-align: center;
+}
+
+
+.players-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+
+.player-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+
+.player-details {
+  text-align: center;
+}
+
+
+.player-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.player-tag {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+
+.player-archetype {
+padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.compatibility-score-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.compatibility-score {
+  font-size: 3rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, currentColor, currentColor);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.compatibility-level {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.compatibility-hearts {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.heart {
+  font-size: 1.5rem;
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.heart.filled {
+  opacity: 1;
+  animation: heartbeat 0.5s ease-in-out;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.compatibility-details {
+  text-align: left;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.compatibility-details > div {
+  margin-bottom: 1.5rem;
+}
+
+.compatibility-details h4 {
+  margin-bottom: 0.75rem;
+  color: #f59e0b;
+  font-size: 1.1rem;
+}
+
+.recommendation p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.strengths ul, .challenges ul {
+  list-style: none;
+  padding: 0;
+}
+
+.strengths li, .challenges li {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.strengths li {
+  border-left: 3px solid #22c55e;
+}
+
+.challenges li {
+  border-left: 3px solid #f59e0b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .players-comparison {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .matchmaking-search-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .matchmaking-input-group {
+    justify-content: center;
+  }
+
+  .compatibility-score {
+    font-size: 2.5rem;
+  }
+
+  .player-avatar {
+    width: 60px;
+    height: 60px;
+  }
+}
+
 /* Share Button Styles */
 .share-button {
   position: absolute;
@@ -2225,11 +2616,6 @@
   }
 }
 
-/* Loading state for share options */
-.share-option.loading {
-  pointer-events: none;
-  opacity: 0.6;
-}
 
 .share-option.loading::after {
   content: '';
