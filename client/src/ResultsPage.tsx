@@ -609,85 +609,414 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
     if (!cardContainerRef.current) return null;
     
     try {
-      const canvas = await html2canvas(cardContainerRef.current, {
+      // Find the currently visible card slide
+      const cardSlides = cardContainerRef.current.querySelectorAll('.card-slide');
+      const currentSlide = cardSlides[currentCardIndex] as HTMLElement;
+      
+      if (!currentSlide) return null;
+
+      // Create a temporary container for capturing
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.width = '800px';
+      tempContainer.style.height = 'auto';
+      tempContainer.style.background = '#1a1a1a';
+      tempContainer.style.padding = '20px';
+      tempContainer.style.zIndex = '99999';
+      
+      // Clone the current slide
+      const clonedSlide = currentSlide.cloneNode(true) as HTMLElement;
+      
+      // Apply styles to make the clone render properly
+      clonedSlide.style.position = 'static';
+      clonedSlide.style.transform = 'none';
+      clonedSlide.style.width = '100%';
+      clonedSlide.style.height = 'auto';
+      clonedSlide.style.display = 'flex';
+      
+      // Find and fix the wrapped card in the clone
+      const clonedCard = clonedSlide.querySelector('.wrapped-card') as HTMLElement;
+      if (clonedCard) {
+        clonedCard.style.width = '100%';
+        clonedCard.style.height = 'auto';
+        clonedCard.style.minHeight = '600px';
+        clonedCard.style.maxHeight = 'none';
+        clonedCard.style.overflow = 'visible';
+        clonedCard.style.display = 'flex';
+        clonedCard.style.flexDirection = 'column';
+      }
+      
+      // Special handling for chat messages in digital twin card
+      const clonedChatMessages = clonedSlide.querySelector('.chat-messages') as HTMLElement;
+      if (clonedChatMessages) {
+        clonedChatMessages.style.height = 'auto';
+        clonedChatMessages.style.maxHeight = 'none';
+        clonedChatMessages.style.overflow = 'visible';
+        clonedChatMessages.style.display = 'flex';
+        clonedChatMessages.style.flexDirection = 'column';
+      }
+      
+      // Add the clone to temp container and container to document
+      tempContainer.appendChild(clonedSlide);
+      document.body.appendChild(tempContainer);
+      
+      // Wait for the DOM to update and styles to apply
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Capture the temp container
+      const canvas = await html2canvas(tempContainer, {
         backgroundColor: '#1a1a1a',
         scale: 2,
         logging: false,
         useCORS: true,
         allowTaint: false,
-        width: 900,
-        height: 700,
+        width: 840, // 800 + 40 padding
+        height: tempContainer.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        ignoreElements: (element: HTMLElement) => {
+          // Ignore any elements that might cause issues
+          return element.classList?.contains('share-button') || false;
+        }
       } as any);
+
+      // Remove the temporary container
+      document.body.removeChild(tempContainer);
+
+      // Create a standardized canvas with 1:1 aspect ratio (square for social media)
+      const standardCanvas = document.createElement('canvas');
+      const standardSize = 1080; // Instagram/Twitter optimal size
+      standardCanvas.width = standardSize;
+      standardCanvas.height = standardSize;
       
-      return canvas.toDataURL('image/png', 0.9);
+      const ctx = standardCanvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+
+      // Fill background with gradient
+      const gradient = ctx.createRadialGradient(
+        standardSize / 2, standardSize / 2, 0,
+        standardSize / 2, standardSize / 2, standardSize / 2
+      );
+      gradient.addColorStop(0, '#1a1a1a');
+      gradient.addColorStop(1, '#000000');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, standardSize, standardSize);
+
+      // Calculate scaling to fit the card in the square canvas
+      const cardAspectRatio = canvas.width / canvas.height;
+      let drawWidth, drawHeight, drawX, drawY;
+
+      if (cardAspectRatio > 1) {
+        // Card is wider than tall
+        drawWidth = standardSize * 0.85; // 85% of canvas width
+        drawHeight = drawWidth / cardAspectRatio;
+      } else {
+        // Card is taller than wide
+        drawHeight = standardSize * 0.85; // 85% of canvas height
+        drawWidth = drawHeight * cardAspectRatio;
+      }
+
+      // Center the card in the canvas
+      drawX = (standardSize - drawWidth) / 2;
+      drawY = (standardSize - drawHeight) / 2;
+
+      // Draw the card on the standard canvas
+      ctx.drawImage(canvas, drawX, drawY, drawWidth, drawHeight);
+
+      // Add subtle border/frame
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(drawX - 1.5, drawY - 1.5, drawWidth + 3, drawHeight + 3);
+
+      // Add branding watermark in bottom right
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = '32px Rajdhani, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('ShapeSplitter', standardSize - 30, standardSize - 30);
+
+      return standardCanvas.toDataURL('image/png', 0.95);
     } catch (error) {
       console.error('Error generating card image:', error);
+      
+      // Clean up any leftover temp containers
+      const tempContainers = document.querySelectorAll('div[style*="position: fixed"][style*="-9999px"]');
+      tempContainers.forEach(container => {
+        try {
+          document.body.removeChild(container);
+        } catch (e) {
+          // Ignore errors when removing
+        }
+      });
+      
       return null;
     }
   };
 
   const downloadImage = async () => {
-    const imageDataUrl = await generateCardImage();
-    if (!imageDataUrl) return;
+    // Add loading state
+    const downloadOption = document.querySelector('.share-option:nth-child(5)');
+    if (downloadOption) {
+      downloadOption.classList.add('loading');
+    }
     
-    const link = document.createElement('a');
-    link.download = `league-wrapped-${shareCardData?.title || 'card'}.png`;
-    link.href = imageDataUrl;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    closeShareModal();
+    try {
+      const imageDataUrl = await generateCardImage();
+      if (!imageDataUrl) {
+        throw new Error('Failed to generate image');
+      }
+      
+      const playerName = playerData.account?.gameName || 'Player';
+      const cardTitle = shareCardData?.title?.toLowerCase().replace(/\s+/g, '-') || 'card';
+      const fileName = `${playerName}-league-wrapped-${cardTitle}.png`;
+      
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = imageDataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Show success feedback
+      if (downloadOption) {
+        const originalLabel = downloadOption.querySelector('.share-option-label')?.textContent;
+        const labelElement = downloadOption.querySelector('.share-option-label');
+        if (labelElement) {
+          labelElement.textContent = 'Downloaded! ✓';
+          setTimeout(() => {
+            labelElement.textContent = originalLabel || 'Download Image';
+          }, 2000);
+        }
+      }
+      
+      setTimeout(closeShareModal, 1500);
+    } catch (error) {
+      console.error('Download failed:', error);
+      
+      // Show error feedback
+      if (downloadOption) {
+        const originalLabel = downloadOption.querySelector('.share-option-label')?.textContent;
+        const labelElement = downloadOption.querySelector('.share-option-label');
+        if (labelElement) {
+          labelElement.textContent = 'Failed ✗';
+          setTimeout(() => {
+            labelElement.textContent = originalLabel || 'Download Image';
+          }, 2000);
+        }
+      }
+    } finally {
+      // Remove loading state
+      if (downloadOption) {
+        downloadOption.classList.remove('loading');
+      }
+    }
   };
 
   const shareToSocials = async (platform: string) => {
     const imageDataUrl = await generateCardImage();
     const text = shareCardData?.content || '';
+    const currentUrl = window.location.href;
     
-    if (navigator.share && imageDataUrl) {
-      // Convert data URL to blob for native sharing
-      const response = await fetch(imageDataUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'league-wrapped.png', { type: 'image/png' });
-      
+    // Add loading state to the clicked option
+    const shareOptions = document.querySelectorAll('.share-option');
+    shareOptions.forEach((option, index) => {
+      if ((platform === 'instagram' && index === 0) ||
+          (platform === 'twitter' && index === 1) ||
+          (platform === 'facebook' && index === 2) ||
+          (platform === 'copy' && index === 3)) {
+        option.classList.add('loading');
+      }
+    });
+
+    if (!imageDataUrl) {
+      console.error('Failed to generate image for sharing');
+      // Remove loading state and show error
+      shareOptions.forEach(option => option.classList.remove('loading'));
+      return;
+    }
+    
+    // Try native sharing with image first on mobile devices
+    if (navigator.share && platform !== 'copy') {
       try {
+        const response = await fetch(imageDataUrl);
+        const blob = await response.blob();
+        const playerName = playerData.account?.gameName || 'Player';
+        const fileName = `${playerName}-league-wrapped.png`;
+        const file = new File([blob], fileName, { type: 'image/png' });
+        
         await navigator.share({
-          title: shareCardData?.title,
+          title: shareCardData?.title || 'League of Legends Wrapped',
           text: text,
           files: [file]
         });
         closeShareModal();
         return;
       } catch (error) {
-        console.log('Native sharing failed, falling back to platform-specific sharing');
+        console.log('Native sharing failed, using platform-specific sharing');
       }
     }
     
-    // Fallback to platform-specific sharing
+    // For platforms that don't support direct image sharing, we'll handle differently
     const encodedText = encodeURIComponent(text);
+    const hashtags = encodeURIComponent('LeagueOfLegends LoLWrapped Gaming');
     let url = '';
     
     switch (platform) {
       case 'twitter':
-        url = `https://twitter.com/intent/tweet?text=${encodedText}`;
+        // Twitter doesn't support direct image upload via URL, but we can encourage users to add the image
+        try {
+          // Copy the image to clipboard for easy pasting
+          const response = await fetch(imageDataUrl);
+          const blob = await response.blob();
+          
+          if (navigator.clipboard && window.ClipboardItem) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([item]);
+            
+            // Update the label to show image is copied
+            const option = document.querySelector('.share-option:nth-child(2)');
+            if (option) {
+              const labelElement = option.querySelector('.share-option-label');
+              if (labelElement) {
+                const originalLabel = labelElement.textContent;
+                labelElement.textContent = 'Image copied! Paste it';
+                setTimeout(() => {
+                  labelElement.textContent = originalLabel;
+                }, 3000);
+              }
+            }
+          }
+        } catch (error) {
+          console.log('Could not copy image to clipboard');
+        }
+        
+        url = `https://twitter.com/intent/tweet?text=${encodedText}&hashtags=${hashtags}`;
         break;
+        
       case 'facebook':
-        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodedText}`;
+        // Facebook also doesn't support direct image upload, copy image and open Facebook
+        try {
+          const response = await fetch(imageDataUrl);
+          const blob = await response.blob();
+          
+          if (navigator.clipboard && window.ClipboardItem) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([item]);
+            
+            const option = document.querySelector('.share-option:nth-child(3)');
+            if (option) {
+              const labelElement = option.querySelector('.share-option-label');
+              if (labelElement) {
+                const originalLabel = labelElement.textContent;
+                labelElement.textContent = 'Image copied! Paste it';
+                setTimeout(() => {
+                  labelElement.textContent = originalLabel;
+                }, 3000);
+              }
+            }
+          }
+        } catch (error) {
+          console.log('Could not copy image to clipboard');
+        }
+        
+        url = `https://www.facebook.com/`;
         break;
+        
       case 'instagram':
-        // Instagram doesn't support direct sharing, so copy text and open Instagram
-        navigator.clipboard.writeText(text);
+        // For Instagram, copy both the image and text
+        try {
+          const response = await fetch(imageDataUrl);
+          const blob = await response.blob();
+          const instagramText = `${text}\n\n#LeagueOfLegends #LoLWrapped #Gaming`;
+          
+          // Try to copy image to clipboard
+          if (navigator.clipboard && window.ClipboardItem) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([item]);
+          }
+          
+          // Also copy text as fallback
+          await navigator.clipboard.writeText(instagramText);
+          
+          const option = document.querySelector('.share-option:nth-child(1)');
+          if (option) {
+            const labelElement = option.querySelector('.share-option-label');
+            if (labelElement) {
+              const originalLabel = labelElement.textContent;
+              labelElement.textContent = 'Image & text copied!';
+              setTimeout(() => {
+                labelElement.textContent = originalLabel;
+              }, 3000);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to copy content');
+        }
         url = 'https://www.instagram.com/';
         break;
+        
       case 'copy':
-        navigator.clipboard.writeText(text);
-        closeShareModal();
-        return;
+        // Copy both image and text for maximum flexibility
+        try {
+          const response = await fetch(imageDataUrl);
+          const blob = await response.blob();
+          const copyText = `${text}\n\nCheck it out: ${currentUrl}`;
+          
+          // Try to copy both image and text
+          if (navigator.clipboard && window.ClipboardItem) {
+            // Try to copy image first
+            try {
+              const item = new ClipboardItem({ 'image/png': blob });
+              await navigator.clipboard.write([item]);
+              
+              const option = document.querySelector('.share-option:nth-child(4)');
+              if (option) {
+                const labelElement = option.querySelector('.share-option-label');
+                if (labelElement) {
+                  labelElement.textContent = 'Image copied! ✓';
+                  setTimeout(() => {
+                    labelElement.textContent = 'Copy Text';
+                  }, 2000);
+                }
+              }
+            } catch (imageError) {
+              // Fallback to text if image copy fails
+              await navigator.clipboard.writeText(copyText);
+              
+              const option = document.querySelector('.share-option:nth-child(4)');
+              if (option) {
+                const labelElement = option.querySelector('.share-option-label');
+                if (labelElement) {
+                  labelElement.textContent = 'Text copied! ✓';
+                  setTimeout(() => {
+                    labelElement.textContent = 'Copy Text';
+                  }, 2000);
+                }
+              }
+            }
+          } else {
+            // Fallback to text only
+            await navigator.clipboard.writeText(copyText);
+          }
+          
+          setTimeout(closeShareModal, 1500);
+          return;
+        } catch (error) {
+          console.error('Failed to copy content');
+        }
+        break;
     }
     
     if (url) {
-      window.open(url, '_blank');
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
-    closeShareModal();
+    
+    // Remove loading state
+    setTimeout(() => {
+      shareOptions.forEach(option => option.classList.remove('loading'));
+      closeShareModal();
+    }, 1000);
   };
 
   const closeShareModal = () => {
@@ -760,25 +1089,49 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
         <div className="share-modal-overlay" onClick={closeShareModal}>
           <div className="share-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Share {shareCardData.title}</h3>
+            <p className="share-subtitle">Share your League Wrapped card as an image</p>
             <div className="share-options">
               <div className="share-option" onClick={() => shareToSocials('instagram')}>
-                <div className="share-option-icon">📷</div>
-                <div className="share-option-label">Instagram Story</div>
+                <div className="share-option-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </div>
+                <div className="share-option-label">Instagram</div>
               </div>
               <div className="share-option" onClick={() => shareToSocials('twitter')}>
-                <div className="share-option-icon">🐦</div>
+                <div className="share-option-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </div>
                 <div className="share-option-label">Twitter</div>
               </div>
               <div className="share-option" onClick={() => shareToSocials('facebook')}>
-                <div className="share-option-icon">📘</div>
+                <div className="share-option-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </div>
                 <div className="share-option-label">Facebook</div>
               </div>
               <div className="share-option" onClick={() => shareToSocials('copy')}>
-                <div className="share-option-icon">📋</div>
-                <div className="share-option-label">Copy Text</div>
+                <div className="share-option-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </div>
+                <div className="share-option-label">Copy Image</div>
               </div>
               <div className="share-option" onClick={downloadImage}>
-                <div className="share-option-icon">💾</div>
+                <div className="share-option-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                </div>
                 <div className="share-option-label">Download Image</div>
               </div>
             </div>

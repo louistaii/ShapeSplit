@@ -2010,3 +2010,262 @@
     padding: 0.5rem;
   }
 }
+
+/* Share Modal Styles */
+.share-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+.share-modal {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 450px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.share-modal h3 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.share-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.share-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.share-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.share-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.share-option:hover::before {
+  left: 100%;
+}
+
+.share-option:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.share-option:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.share-option-icon {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.share-option-label {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  font-family: 'Rajdhani', sans-serif;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.share-option:hover .share-option-label {
+  opacity: 1;
+}
+
+/* Specific platform colors on hover */
+.share-option:nth-child(1):hover {
+  background: linear-gradient(135deg, rgba(225, 48, 108, 0.2), rgba(225, 48, 108, 0.1));
+  border-color: rgba(225, 48, 108, 0.4);
+}
+
+.share-option:nth-child(2):hover {
+  background: linear-gradient(135deg, rgba(29, 161, 242, 0.2), rgba(29, 161, 242, 0.1));
+  border-color: rgba(29, 161, 242, 0.4);
+}
+
+.share-option:nth-child(3):hover {
+  background: linear-gradient(135deg, rgba(24, 119, 242, 0.2), rgba(24, 119, 242, 0.1));
+  border-color: rgba(24, 119, 242, 0.4);
+}
+
+.share-option:nth-child(4):hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.share-option:nth-child(5):hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.1));
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.share-modal-close {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: 'Rajdhani', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.share-modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.share-modal-close:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsiveness for share modal */
+@media (max-width: 768px) {
+  .share-modal {
+    padding: 1.5rem;
+    max-width: 95%;
+  }
+  
+  .share-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .share-option {
+    padding: 1.25rem 0.75rem;
+  }
+  
+  .share-option-icon {
+    font-size: 1.75rem;
+  }
+  
+  .share-option-label {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .share-modal {
+    padding: 1rem;
+  }
+  
+  .share-modal h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .share-options {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .share-option {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .share-option-icon {
+    font-size: 1.5rem;
+  }
+  
+  .share-option-label {
+    text-align: left;
+    flex: 1;
+  }
+}
+
+/* Loading state for share options */
+.share-option.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.share-option.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
