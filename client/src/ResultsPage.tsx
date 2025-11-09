@@ -460,22 +460,22 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
               {playerData.personality.stats?.features && (
                 <div className="gameplay-stats">
                   <div className="primary-role">
-                    <span className="role-label">You're a</span>
+                    <span className="role-label">You're a </span>
                     <span className="role-name">{playerData.personality.stats.features.primaryRole?.replace('UTILITY', 'Support').replace('BOTTOM', 'ADC')}</span>
-                    <span className="role-label">main</span>
+                    <span className="role-label"> main</span>
                   </div>
                   <div className="gameplay-insights">
                     <div className="insight">
                       <span className="insight-value">{(playerData.personality.stats.features.championDiversity * 100).toFixed(0)}%</span>
-                      <span className="insight-label">Champion Diversity</span>
+                      <span className="insight-label"> Champion Diversity</span>
                     </div>
                     <div className="insight">
                       <span className="insight-value">{playerData.personality.stats.features.aggressionIndex.toFixed(1)}</span>
-                      <span className="insight-label">Aggression Index</span>
+                      <span className="insight-label"> Aggression Index</span>
                     </div>
                     <div className="insight">
                       <span className="insight-value">{playerData.personality.stats.features.avgKda.toFixed(2)}</span>
-                      <span className="insight-label">Average KDA</span>
+                      <span className="insight-label"> Average KDA</span>
                     </div>
                   </div>
                 </div>
@@ -500,14 +500,14 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
               <div className="gamemode-display">
                 <div className="games-played">
                   <span className="big-number">{stats.gamesPlayed}</span>
-                  <span className="big-label">Games Played</span>
+                  <span className="big-label"> Games Played</span>
                 </div>
                 <div className="kda-display">
                   <div className="kda-numbers">
                     <span className="kda-value">{stats.avgKills}</span>
-                    <span className="kda-separator">/</span>
+                    <span className="kda-value">/</span>
                     <span className="kda-value">{stats.avgDeaths}</span>
-                    <span className="kda-separator">/</span>
+                    <span className="kda-value">/</span>
                     <span className="kda-value">{stats.avgAssists}</span>
                   </div>
                   <span className="kda-label">Average K/D/A</span>

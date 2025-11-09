@@ -475,63 +475,6 @@
   font-weight: 600;
 }
 
-/* Match display styles */
-.matches-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.match-item {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  padding: 1rem;
-  border-left: 4px solid transparent;
-}
-
-.match-item.win {
-  border-left-color: #4ade80;
-}
-
-.match-item.loss {
-  border-left-color: #f87171;
-}
-
-.match-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.match-result {
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-.match-result.win {
-  background: rgba(74, 222, 128, 0.2);
-  color: #4ade80;
-}
-
-.match-result.loss {
-  background: rgba(248, 113, 113, 0.2);
-  color: #f87171;
-}
-
-.match-duration {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.match-details {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
 
 .champion-info {
   color: #a8b892;
@@ -1311,6 +1254,43 @@
 .winrate-label {
   font-size: clamp(0.8rem, 2vw, 1rem);
   color: rgba(255, 255, 255, 0.8);
+}
+
+/*Playstyle Display */
+.role-label {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.role-name {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #ffffff;
+  font-family: 'Bebas Neue', sans-serif;
+  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.insight-value {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: bold;
+  color: #90EE90;
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 1;
+}
+
+.insight-label {
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 /* Share Button Styles */
