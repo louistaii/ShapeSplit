@@ -78,29 +78,23 @@ interface Card {
 function getStatsByGameMode(matches: Match[] = [], puuid: string) {
   if (!matches || matches.length === 0) return {};
   
+  // Only include Summoner's Rift games (ranked and normal)
+  const allowedModes = ['CLASSIC'];
+  
   const gameModeMap: { [key: string]: string } = {
-    'CLASSIC': 'Ranked Solo/Duo',
-    'CHERRY': 'Arena',
-    'ARAM': 'ARAM',
-    'URF': 'URF',
-    'NEXUSBLITZ': 'Nexus Blitz',
-    'ONEFORALL': 'One For All',
-    'ASCENSION': 'Ascension',
-    'KINGPORO': 'King Poro',
-    'SIEGE': 'Nexus Siege',
-    'TUTORIAL': 'Tutorial',
-    'DOOMBOTSTEEMO': 'Doom Bots',
-    'STARGUARDIAN': 'Star Guardian',
-    'PROJECT': 'Project',
-    'GAMEMODEX': 'Game Mode X',
-    'ODYSSEY': 'Odyssey',
-    'SNOWURF': 'Snow URF'
+    'CLASSIC': "Summoner's Rift"
   };
   
   const statsByMode: { [key: string]: { kills: number[], deaths: number[], assists: number[], wins: number, total: number } } = {};
   
   matches.forEach((match) => {
     const gameMode = match.info?.gameMode || 'Unknown';
+    
+    // Only process matches from allowed game modes
+    if (!allowedModes.includes(gameMode)) {
+      return;
+    }
+    
     const friendlyName = gameModeMap[gameMode] || gameMode;
     const p = match.info?.participants?.find((x) => x.puuid === puuid);
     if (p) {
@@ -412,7 +406,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
       component: (
         <div className="wrapped-card archetype-card">
           <div className="wrapped-card-content">
-            <h3 className="card-title">🎭 Your Personality</h3>
+            <h3 className="card-title">🎭 {playerData.account?.gameName}'s Archetype</h3>
             <div className="archetype-display">
               <div className="archetype-name">{playerData.personality.personality?.archetype.name}</div>
               <div className="archetype-similarity">{playerData.personality.personality?.archetype.similarity}% match</div>
@@ -433,7 +427,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
       component: (
         <div className="wrapped-card traits-card">
           <div className="wrapped-card-content">
-            <h3 className="card-title">🧠 Your Big Five</h3>
+            <h3 className="card-title">🧠 {playerData.account?.gameName}'s Big Five</h3>
             <div className="traits-display">
               {playerData.personality.personality?.bigFive && Object.entries(playerData.personality.personality.bigFive)
                 .sort(([,a], [,b]) => b - a)
@@ -461,7 +455,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
       component: (
         <div className="wrapped-card gameplay-card">
           <div className="wrapped-card-content">
-            <h3 className="card-title">🎮 Your Playstyle</h3>
+            <h3 className="card-title">🎮 {playerData.account?.gameName}'s Playstyle</h3>
             <div className="gameplay-display">
               {playerData.personality.stats?.features && (
                 <div className="gameplay-stats">
@@ -734,7 +728,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.font = '32px Rajdhani, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('ShapeSplitter', standardSize - 30, standardSize - 30);
+      ctx.fillText('Shape Split', standardSize - 30, standardSize - 30);
 
       return standardCanvas.toDataURL('image/png', 0.95);
     } catch (error) {
