@@ -408,28 +408,6 @@ function getStatsByGameMode(matches: Match[] = [], puuid: string) {
   return result;
 }
 
-function getLatestUniquePlayers(matches: Match[] = [], puuid: string) {
-  const seen = new Set();
-  const players: { puuid: string; summonerName: string; championName: string; championImageUrl?: string }[] = [];
-  
-  for (const match of matches || []) {
-    for (const p of match.info?.participants || []) {
-      if (p.puuid !== puuid && !seen.has(p.puuid)) {
-        seen.add(p.puuid);
-        const summonerName = (p as any).riotIdGameName || (p as any).summonerName || `Player${players.length + 1}`;
-        players.push({
-          puuid: p.puuid,
-          summonerName: summonerName,
-          championName: p.championName,
-          championImageUrl: p.championImageUrl
-        });
-        if (players.length === 10) return players;
-      }
-    }
-  }
-  return players;
-}
-
 const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -499,7 +477,6 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   
   const puuid = playerData.account?.puuid || '';
   const statsByMode = getStatsByGameMode(playerData.matches, puuid);
-  const latestPlayers = getLatestUniquePlayers(playerData.matches, puuid);
 
   // Chat functionality functions
   const handleSendMessage = async () => {
