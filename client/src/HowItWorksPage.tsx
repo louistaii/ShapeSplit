@@ -142,7 +142,7 @@ const HowItWorksPage: React.FC = () => {
               <div className="technical-icon">🤖</div>
               <h4>AWS Bedrock AI</h4>
               <p>
-                Claude 4.5 Sonnet powers conversational insights, analyzing your complete player context 
+                Claude 3.5 Sonnet powers conversational insights, analyzing your complete player context 
                 to provide coaching and answer questions about your gameplay.
               </p>
             </div>

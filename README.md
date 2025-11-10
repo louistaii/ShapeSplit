@@ -169,7 +169,7 @@ The chat endpoint (`/api/chat`) creates an interactive digital twin using AWS Be
 - Regional endpoint routing: `https://bedrock-runtime.{AWS_REGION}.amazonaws.com/model/{modelId}/invoke`
 
 **Model Configuration:**
-- Model: `anthropic.claude-sonnet-4-5-20250929-v1:0`
+- Model: `anthropic.claude-3-5-sonnet-20240620-v1:0`
 - Max tokens: 300 (concise responses)
 - Temperature: 0.7 (balanced creativity and consistency)
 - Anthropic version: `bedrock-2023-05-31`
