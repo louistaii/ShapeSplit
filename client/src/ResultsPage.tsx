@@ -41,17 +41,17 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
 
   // Region options (same as SearchPage)
   const regions = [
+    { value: 'kr', label: 'Korea' },
     { value: 'na1', label: 'North America' },
     { value: 'euw1', label: 'Europe West' },
     { value: 'eun1', label: 'Europe Nordic & East' },
-    { value: 'kr', label: 'Korea' },
-    { value: 'jp1', label: 'Japan' },
     { value: 'br1', label: 'Brazil' },
     { value: 'la1', label: 'Latin America North' },
     { value: 'la2', label: 'Latin America South' },
     { value: 'oc1', label: 'Oceania' },
     { value: 'tr1', label: 'Turkey' },
-    { value: 'ru', label: 'Russia' }
+    { value: 'ru', label: 'Russia' },
+    { value: 'jp1', label: 'Japan' }
   ];
 
   const handleSearch = async () => {

@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
 
         const apiKey = process.env.BEDROCK_API_KEY;
         const awsRegion = process.env.AWS_REGION;
-        const modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0";
+        const modelId = "anthropic.claude-sonnet-4-5-20250929-v1:0";
         const url = `https://bedrock-runtime.${awsRegion}.amazonaws.com/model/${modelId}/invoke`;
 
         const payload = {
