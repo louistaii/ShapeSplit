@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlayerDataContext } from './PlayerDataContext';
+import { API_CONFIG, API_ENDPOINTS } from './config/api';
 
 const regions = [
   { value: 'kr', label: 'Korea' },
@@ -38,7 +39,7 @@ const SearchPage: React.FC = () => {
 
     try {
       // Use Server-Sent Events for real-time progress updates
-      const eventSource = new EventSource(`http://localhost:5000/api/search/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}/progress?region=${region}`);
+      const eventSource = new EventSource(`${API_CONFIG.sseBaseURL}${API_ENDPOINTS.searchProgress(gameName, tagLine, region)}`);
       
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);

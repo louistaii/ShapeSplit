@@ -1,0 +1,14 @@
+{
+  "Parameters": {
+    "functionleaguestatsapiName": {
+      "Type": "String",
+      "Default": "leaguestatsapi"
+    },
+    "functionleaguestatsapiArn": {
+      "Type": "String"
+    },
+    "functionleaguestatsapiLambdaExecutionRole": {
+      "Type": "String"
+    }
+  }
+}

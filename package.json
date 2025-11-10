@@ -8,7 +8,10 @@
     "server": "cd server && cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node index.js",
     "client": "cd client && cross-env HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 npm start",
     "build": "cd client && cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 npm run build",
-    "install-all": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 npm install && cd server && npm install && cd ../client && npm install"
+    "install-all": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 npm install && cd server && npm install && cd ../client && npm install",
+    "amplify:init": "amplify init --yes",
+    "amplify:push": "amplify push --yes",
+    "amplify:publish": "amplify publish --yes"
   },
   "keywords": [
     "league of legends",

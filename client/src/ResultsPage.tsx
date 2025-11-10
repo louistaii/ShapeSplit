@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
+import { API_CONFIG, API_ENDPOINTS } from './config/api';
 
 // Matchmaking Card Component
 interface MatchmakingCardProps {
@@ -67,11 +68,9 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
     setMatchResult(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/matchmaking', {
+      const response = await fetch(`${API_CONFIG.baseURL}${API_ENDPOINTS.matchmaking}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: API_CONFIG.headers,
         body: JSON.stringify({
           player1Data: playerData,
           player2GameName: gameName.trim(),

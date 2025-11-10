@@ -1,0 +1,199 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "API Gateway resource stack for League Stats API",
+  "Parameters": {
+    "authRoleName": {
+      "Type": "String"
+    },
+    "unauthRoleName": {
+      "Type": "String"
+    },
+    "env": {
+      "Type": "String"
+    },
+    "functionleaguestatsapiName": {
+      "Type": "String"
+    },
+    "functionleaguestatsapiArn": {
+      "Type": "String"
+    }
+  },
+  "Conditions": {
+    "ShouldNotCreateEnvResources": {
+      "Fn::Equals": [
+        {
+          "Ref": "env"
+        },
+        "NONE"
+      ]
+    }
+  },
+  "Resources": {
+    "leaguestats": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Description": "League Stats API",
+        "Name": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "leaguestats",
+            {
+              "Fn::Sub": [
+                "leaguestats-${env}",
+                {
+                  "env": {
+                    "Ref": "env"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "Body": {
+          "swagger": "2.0",
+          "info": {
+            "version": "2018-05-24T17:52:00Z",
+            "title": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          "host": {
+            "Fn::Sub": "apigateway.${AWS::Region}.amazonaws.com"
+          },
+          "basePath": {
+            "Fn::If": [
+              "ShouldNotCreateEnvResources",
+              "/Prod",
+              {
+                "Fn::Sub": [
+                  "/${env}",
+                  {
+                    "env": {
+                      "Ref": "env"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "schemes": [
+            "https"
+          ],
+          "paths": {
+            "/{proxy+}": {
+              "x-amazon-apigateway-any-method": {
+                "consumes": [
+                  "application/json"
+                ],
+                "produces": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "in": "path",
+                    "name": "proxy",
+                    "required": true,
+                    "type": "string"
+                  }
+                ],
+                "x-amazon-apigateway-integration": {
+                  "responses": {
+                    "default": {
+                      "statusCode": "200"
+                    }
+                  },
+                  "uri": {
+                    "Fn::Sub": [
+                      "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations",
+                      {
+                        "functionArn": {
+                          "Ref": "functionleaguestatsapiArn"
+                        }
+                      }
+                    ]
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "type": "aws_proxy"
+                }
+              }
+            }
+          }
+        },
+        "FailOnWarnings": true
+      }
+    },
+    "DeploymentAPIGWleaguestats": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "Description": "The Development stage deployment of your API.",
+        "StageName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "Prod",
+            {
+              "Ref": "env"
+            }
+          ]
+        },
+        "RestApiId": {
+          "Ref": "leaguestats"
+        }
+      }
+    },
+    "PermissionForAPIGWleaguestats": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "functionleaguestatsapiName"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": [
+            "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${api}/*/*/*",
+            {
+              "api": {
+                "Ref": "leaguestats"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "RootUrl": {
+      "Description": "Root URL of the API gateway",
+      "Value": {
+        "Fn::Sub": [
+          "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}",
+          {
+            "RestApi": {
+              "Ref": "leaguestats"
+            },
+            "Stage": {
+              "Fn::If": [
+                "ShouldNotCreateEnvResources",
+                "Prod",
+                {
+                  "Ref": "env"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ApiName": {
+      "Value": {
+        "Ref": "leaguestats"
+      }
+    },
+    "ApiId": {
+      "Value": {
+        "Ref": "leaguestats"
+      }
+    }
+  }
+}
