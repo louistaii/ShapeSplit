@@ -4,6 +4,7 @@ import { PlayerDataProvider, PlayerDataContext } from './PlayerDataContext';
 import SearchPage from './SearchPage';
 import LoadingPage from './LoadingPage';
 import ResultsPage from './ResultsPage';
+import HowItWorksPage from './HowItWorksPage';
 import './App.css';
 
 function AppRoutes() {
@@ -16,6 +17,7 @@ function AppRoutes() {
       <Route path="/" element={<SearchPage />} />
       <Route path="/loading" element={<LoadingPage profileIconUrl={profileIconUrl} loadingStatus={loadingStatus} />} />
       <Route path="/results" element={<ResultsPage playerData={playerData} />} />
+      <Route path="/how-it-works" element={<HowItWorksPage />} />
     </Routes>
   );
 }
@@ -39,7 +41,7 @@ function App() {
 
           <nav className={`menu ${menuOpen ? 'open' : ''}`}>
             <a href="#home" onClick={(e) => { e.preventDefault(); setMenuOpen(false); window.location.href = '/'; }}>Home</a>
-            <a href="#how-it-works" onClick={() => setMenuOpen(false)}>Getting Started</a>
+            <a href="/how-it-works" onClick={(e) => { e.preventDefault(); setMenuOpen(false); window.location.href = '/how-it-works'; }}>How It Works</a>
             <a href="https://github.com/louistaii/ShapeSplit" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>GitHub Repo</a>
           </nav>
 

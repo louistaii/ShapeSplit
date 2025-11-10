@@ -2,7 +2,6 @@
 // Automatically detects if running locally or on production
 
 const isProduction = process.env.NODE_ENV === 'production';
-const isDevelopment = process.env.NODE_ENV === 'development';
 
 // In production (Vercel), use relative URLs (same domain)
 // In development, use localhost:5000
@@ -14,7 +13,9 @@ export const getApiUrl = (endpoint: string): string => {
 };
 
 // Export for use in components
-export default {
+const config = {
   API_BASE_URL,
   getApiUrl,
 };
+
+export default config;
