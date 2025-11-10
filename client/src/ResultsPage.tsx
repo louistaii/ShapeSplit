@@ -111,7 +111,7 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
 
   if (matchResult) {
     return (
-      <div className="wrapped-card matchmaking-card">
+      <div className="wrapped-card matchmaking-card has-results">
         <div className="wrapped-card-content">
           <div className="matchmaking-header">
             <h3 className="card-title">Matchmake</h3>

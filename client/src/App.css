@@ -1301,9 +1301,14 @@
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
+  justify-content: center;
+  align-items: center;
   gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+/* When there are results, align to top */
+.matchmaking-card.has-results .wrapped-card-content {
+  justify-content: flex-start;
 }
 
 .matchmaking-header {
@@ -1349,12 +1354,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
 .matchmaking-region-selector label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.8);
   font-weight: 500;
 }
@@ -1365,7 +1369,7 @@
   border-radius: 6px;
   color: #ffffff;
   padding: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-family: 'Rajdhani', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1461,11 +1465,11 @@
 .matchmaking-region-select-inline {
   background: transparent;
   border: none;
-  color: #ffffff;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  font-family: 'Rajdhani', sans-serif;
   outline: none;
+  color: #ffffff;
+  font-size: 1rem;
+  padding: 0.5rem;
+  font-family: 'Rajdhani', sans-serif;
   cursor: pointer;
   width: auto;
   min-width: 100px;
@@ -1979,6 +1983,7 @@ padding: 0.25rem 0.75rem;
   align-items: center;
   text-align: center;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .card-title {
@@ -2143,6 +2148,25 @@ padding: 0.25rem 0.75rem;
 }
 
 /* Digital Twin Chat Card Styles */
+.digital-twin-card {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.digital-twin-card .wrapped-card-content {
+  overflow-x: hidden;
+  overflow-y: auto;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .digital-twin-header {
   display: flex;
   align-items: center;
@@ -2150,6 +2174,9 @@ padding: 0.25rem 0.75rem;
   margin-bottom: clamp(1rem, 3vh, 1.5rem);
   padding-bottom: 0.8rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 }
 
 .twin-profile-icon {
@@ -2213,7 +2240,7 @@ padding: 0.25rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   width: 100%;
-  max-width: 100%;
+  max-width: 1000px;
   box-sizing: border-box;
 }
 
@@ -2227,7 +2254,9 @@ padding: 0.25rem 0.75rem;
   scroll-behavior: smooth;
   overflow-x: hidden;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -2248,21 +2277,24 @@ padding: 0.25rem 0.75rem;
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
-  max-width: 85%;
+  max-width: 60%;
   animation: fadeInUp 0.3s ease;
-  width: fit-content;
   box-sizing: border-box;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  min-width: 0;
+  width: auto;
 }
 
 .user-message {
   align-self: flex-end;
   flex-direction: row-reverse;
+  max-width: 60%;
 }
 
 .ai-message {
   align-self: flex-start;
+  max-width: 60%;
 }
 
 .message-avatar {
@@ -2323,6 +2355,7 @@ padding: 0.25rem 0.75rem;
   box-sizing: border-box;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  overflow: hidden;
 }
 
 .user-message .message-content {
@@ -2392,6 +2425,10 @@ padding: 0.25rem 0.75rem;
   padding: clamp(0.6rem, 1.5vw, 0.8rem);
   background: rgba(255, 255, 255, 0.05);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .chat-input {
