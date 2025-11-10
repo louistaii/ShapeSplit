@@ -147,7 +147,7 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
                       key={i} 
                       className={`heart ${i < Math.ceil(matchResult.compatibility.score / 20) ? 'filled' : ''}`}
                     >
-                      💖
+                      🤍
                     </span>
                   ))}
                 </div>
@@ -211,22 +211,6 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
           </p>
           
           <div className="matchmaking-search-form">
-            <div className="matchmaking-region-selector">
-              <label htmlFor="matchmaking-region">Region:</label>
-              <select
-                id="matchmaking-region"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                className="matchmaking-region-select"
-                disabled={isSearching}
-              >
-                {regions.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-            </div>
             
             <div className="matchmaking-input-group">
               <input
@@ -254,6 +238,22 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
                 className="matchmaking-search-input matchmaking-tag-input"
                 disabled={isSearching}
               />
+            </div>
+            <div className="matchmaking-region-selector">
+              <label htmlFor="matchmaking-region">Region:</label>
+              <select
+                id="matchmaking-region"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                className="matchmaking-region-select"
+                disabled={isSearching}
+              >
+                {regions.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <button
               onClick={handleSearch}
