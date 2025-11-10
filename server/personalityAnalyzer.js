@@ -13,64 +13,64 @@ class PersonalityAnalyzer {
 
         this.JUNGIAN_ARCHETYPES = {
             "Innocent": {
-                "traits": {"Extraversion": 20, "Openness": 50, "Agreeableness": 85},
-                "champions": ["Lulu"],
-                "description": "Optimistic, cautious, low-risk player"
+                "traits": {"Extraversion": 45, "Openness": 50, "Agreeableness": 80, "Conscientiousness": 70, "Emotional Stability": 65},
+                "champions": ["Lulu", "Soraka"],
+                "description": "Optimistic and cautious, avoids risks and helps teammates"
             },
             "Orphan": {
-                "traits": {"Openness": 50, "Agreeableness": 85, "Conscientiousness": 60},
-                "champions": ["Amumu"],
-                "description": "Empathetic, cooperative, seeks team cohesion"
+                "traits": {"Extraversion": 55, "Openness": 55, "Agreeableness": 75, "Conscientiousness": 55, "Emotional Stability": 55},
+                "champions": ["Amumu", "Maokai"],
+                "description": "Balanced team player, seeks connection and reliable performance"
             },
             "Hero": {
-                "traits": {"Extraversion": 85, "Conscientiousness": 85, "Emotional Stability": 85},
-                "champions": ["Garen"],
-                "description": "Courageous, competitive, lead initiator in fights"
+                "traits": {"Extraversion": 90, "Openness": 55, "Agreeableness": 60, "Conscientiousness": 75, "Emotional Stability": 70},
+                "champions": ["Garen", "Darius"],
+                "description": "Fearless frontline warrior, disciplined and victory-driven"
             },
             "Caregiver": {
-                "traits": {"Agreeableness": 90, "Extraversion": 55, "Emotional Stability": 80},
-                "champions": ["Janna"],
-                "description": "Nurturing, protective, prioritizes teammates' survival"
+                "traits": {"Extraversion": 50, "Openness": 50, "Agreeableness": 95, "Conscientiousness": 65, "Emotional Stability": 65},
+                "champions": ["Janna", "Nami"],
+                "description": "Selfless support main, prioritizes team survival above personal glory"
             },
             "Explorer": {
-                "traits": {"Openness": 85, "Extraversion": 80, "Conscientiousness": 60},
-                "champions": ["Taliyah"],
-                "description": "Curious, independent, seeks discovery and experimentation"
+                "traits": {"Extraversion": 80, "Openness": 85, "Agreeableness": 50, "Conscientiousness": 50, "Emotional Stability": 55},
+                "champions": ["Taliyah", "Bard"],
+                "description": "Adventurous experimenter, constantly trying new strategies and champions"
             },
             "Rebel": {
-                "traits": {"Agreeableness": 20, "Extraversion": 85, "Openness": 85},
-                "champions": ["Yasuo"],
-                "description": "Bold, risk-taking, breaks standard meta"
+                "traits": {"Extraversion": 95, "Openness": 75, "Agreeableness": 45, "Conscientiousness": 45, "Emotional Stability": 50},
+                "champions": ["Yasuo", "Draven"],
+                "description": "High-risk solo player, ignores meta and plays aggressively"
             },
             "Lover": {
-                "traits": {"Agreeableness": 85, "Extraversion": 75, "Openness": 60},
-                "champions": ["Xayah, Rakan"],
-                "description": "Passionate, cooperative, values relationships"
+                "traits": {"Extraversion": 85, "Openness": 65, "Agreeableness": 90, "Conscientiousness": 60, "Emotional Stability": 60},
+                "champions": ["Xayah", "Rakan"],
+                "description": "Passionate duo player, excels with coordination and synergy"
             },
             "Creator": {
-                "traits": {"Openness": 90, "Conscientiousness": 60, "Extraversion": 55},
-                "champions": ["Viktor"],
-                "description": "Imaginative, inventive, enjoys creative strategies"
+                "traits": {"Extraversion": 50, "Openness": 90, "Agreeableness": 50, "Conscientiousness": 70, "Emotional Stability": 65},
+                "champions": ["Viktor", "Heimerdinger"],
+                "description": "Big-brain strategist, builds innovative win conditions"
             },
             "Jester": {
-                "traits": {"Extraversion": 85, "Conscientiousness": 30, "Openness": 60},
-                "champions": ["Teemo"],
-                "description": "Playful, spontaneous, improvisational"
+                "traits": {"Extraversion": 90, "Openness": 70, "Agreeableness": 50, "Conscientiousness": 45, "Emotional Stability": 50},
+                "champions": ["Teemo", "Shaco"],
+                "description": "Chaotic trickster, plays for entertainment and enemy frustration"
             },
             "Sage": {
-                "traits": {"Conscientiousness": 90, "Emotional Stability": 85, "Openness": 65},
-                "champions": ["Ryze"],
-                "description": "Analytical, thoughtful, strategic thinker"
+                "traits": {"Extraversion": 60, "Openness": 65, "Agreeableness": 60, "Conscientiousness": 75, "Emotional Stability": 70},
+                "champions": ["Ryze", "Orianna"],
+                "description": "Disciplined perfectionist, masters fundamentals through practice"
             },
             "Magician": {
-                "traits": {"Openness": 85, "Extraversion": 80, "Conscientiousness": 80},
-                "champions": ["Twisted Fate"],
-                "description": "Visionary, transformative, makes things happen"
+                "traits": {"Extraversion": 75, "Openness": 75, "Agreeableness": 60, "Conscientiousness": 75, "Emotional Stability": 70},
+                "champions": ["Twisted Fate", "Zed"],
+                "description": "Versatile playmaker, adapts to carry games from any position"
             },
             "Ruler": {
-                "traits": {"Conscientiousness": 90, "Emotional Stability": 85, "Extraversion": 65},
-                "champions": ["Galio"],
-                "description": "Responsible, controlling, creates order and stability"
+                "traits": {"Extraversion": 65, "Openness": 55, "Agreeableness": 70, "Conscientiousness": 80, "Emotional Stability": 75},
+                "champions": ["Galio", "Shen"],
+                "description": "Strategic macro player, controls vision and map objectives"
             }
         };
     }
@@ -202,21 +202,27 @@ class PersonalityAnalyzer {
         }
 
         // Conscientiousness: Linked to consistency (low variance) and precision roles (ADC)
-        const deathPenalty = (features.avgDeaths || 5) * 2.5;
+        // REBALANCED: Reduced penalties and added KDA bonus to balance
+        const deathPenalty = Math.max(0, (features.avgDeaths || 5) - 3) * 2.0; // Only penalize deaths above 3
         traits["Conscientiousness"] -= deathPenalty;
-        calculations["Conscientiousness"].push(`Avg deaths penalty: -${deathPenalty.toFixed(1)} (${(features.avgDeaths || 0).toFixed(2)} × 2.5)`);
+        calculations["Conscientiousness"].push(`Avg deaths penalty: -${deathPenalty.toFixed(1)} (max(0, ${(features.avgDeaths || 0).toFixed(2)} - 3) × 2.0)`);
         
-        const kdaVarPenalty = (features.kdaVariance || 0) * 4;
+        const kdaVarPenalty = (features.kdaVariance || 0) * 2.5; // Reduced from 4
         traits["Conscientiousness"] -= kdaVarPenalty;
-        calculations["Conscientiousness"].push(`KDA variance penalty: -${kdaVarPenalty.toFixed(1)} (${(features.kdaVariance || 0).toFixed(2)} × 4)`);
+        calculations["Conscientiousness"].push(`KDA variance penalty: -${kdaVarPenalty.toFixed(1)} (${(features.kdaVariance || 0).toFixed(2)} × 2.5)`);
         
-        const deathVarPenalty = (features.deathVariance || 0) * 3;
+        const deathVarPenalty = (features.deathVariance || 0) * 2; // Reduced from 3
         traits["Conscientiousness"] -= deathVarPenalty;
-        calculations["Conscientiousness"].push(`Death variance penalty: -${deathVarPenalty.toFixed(1)} (${(features.deathVariance || 0).toFixed(2)} × 3)`);
+        calculations["Conscientiousness"].push(`Death variance penalty: -${deathVarPenalty.toFixed(1)} (${(features.deathVariance || 0).toFixed(2)} × 2)`);
+        
+        // Add KDA bonus to reward good play
+        const kdaBonus = Math.min(20, (features.avgKda || 0) * 5); // Cap at +20
+        traits["Conscientiousness"] += kdaBonus;
+        calculations["Conscientiousness"].push(`KDA bonus: +${kdaBonus.toFixed(1)} (min(20, ${(features.avgKda || 0).toFixed(2)} × 5))`);
         
         if (features.primaryRole === "BOTTOM") {
-            traits["Conscientiousness"] += 20;
-            calculations["Conscientiousness"].push("ADC role: +20.0");
+            traits["Conscientiousness"] += 15; // Reduced from 20 since we added KDA bonus
+            calculations["Conscientiousness"].push("ADC role: +15.0");
         }
 
         // Extraversion: Linked to aggression, roaming, and high-action roles (Jungle/Mid)
@@ -241,37 +247,56 @@ class PersonalityAnalyzer {
         }
 
         // Agreeableness: Linked to supportive actions (assists, vision) and roles (Support, Jungle)
-        const assistBonus = (features.assistRatio || 0) * 20;
+        // REBALANCED: Reduced multipliers to avoid everyone having high Agreeableness
+        const assistBonus = Math.min(25, (features.assistRatio || 0) * 15); // Reduced from 20, capped at 25
         traits["Agreeableness"] += assistBonus;
-        calculations["Agreeableness"].push(`Assist ratio: +${assistBonus.toFixed(1)} (${(features.assistRatio || 0).toFixed(2)} × 20)`);
+        calculations["Agreeableness"].push(`Assist ratio: +${assistBonus.toFixed(1)} (${(features.assistRatio || 0).toFixed(2)} × 15, max 25)`);
         
-        const visionBonus = (features.visionPerMin || 0) * 10;
+        const visionBonus = Math.min(15, (features.visionPerMin || 0) * 7); // Reduced from 10, capped at 15
         traits["Agreeableness"] += visionBonus;
-        calculations["Agreeableness"].push(`Vision/min: +${visionBonus.toFixed(1)} (${(features.visionPerMin || 0).toFixed(2)} × 10)`);
+        calculations["Agreeableness"].push(`Vision/min: +${visionBonus.toFixed(1)} (${(features.visionPerMin || 0).toFixed(2)} × 7, max 15)`);
+        
+        // Penalize selfish play (low assist ratio)
+        if ((features.assistRatio || 0) < 0.5) {
+            const selfishPenalty = (0.5 - (features.assistRatio || 0)) * 30;
+            traits["Agreeableness"] -= selfishPenalty;
+            calculations["Agreeableness"].push(`Low assist penalty: -${selfishPenalty.toFixed(1)}`);
+        }
         
         if (features.primaryRole === "UTILITY") {
             traits["Agreeableness"] += 25;
             calculations["Agreeableness"].push("Support role: +25.0");
         } else if (features.primaryRole === "JUNGLE") {
-            traits["Agreeableness"] += 15;
-            calculations["Agreeableness"].push("Jungle role: +15.0");
+            traits["Agreeableness"] += 10; // Reduced from 15
+            calculations["Agreeableness"].push("Jungle role: +10.0");
         } else if (features.primaryRole === "MIDDLE") {
-            traits["Agreeableness"] -= 15;
-            calculations["Agreeableness"].push("Mid role: -15.0");
+            traits["Agreeableness"] -= 10; // Reduced penalty
+            calculations["Agreeableness"].push("Mid role: -10.0");
+        } else if (features.primaryRole === "TOP") {
+            traits["Agreeableness"] -= 5;
+            calculations["Agreeableness"].push("Top role: -5.0");
         }
 
         // Emotional Stability: Linked to low variance (consistency) and objective control
-        const kdaStabPenalty = (features.kdaVariance || 0) * 5;
+        // REBALANCED: Reduced variance penalties and boosted objective bonus
+        const kdaStabPenalty = (features.kdaVariance || 0) * 3; // Reduced from 5
         traits["Emotional Stability"] -= kdaStabPenalty;
-        calculations["Emotional Stability"].push(`KDA variance penalty: -${kdaStabPenalty.toFixed(1)} (${(features.kdaVariance || 0).toFixed(2)} × 5)`);
+        calculations["Emotional Stability"].push(`KDA variance penalty: -${kdaStabPenalty.toFixed(1)} (${(features.kdaVariance || 0).toFixed(2)} × 3)`);
         
-        const deathStabPenalty = (features.deathVariance || 0) * 4;
+        const deathStabPenalty = (features.deathVariance || 0) * 2.5; // Reduced from 4
         traits["Emotional Stability"] -= deathStabPenalty;
-        calculations["Emotional Stability"].push(`Death variance penalty: -${deathStabPenalty.toFixed(1)} (${(features.deathVariance || 0).toFixed(2)} × 4)`);
+        calculations["Emotional Stability"].push(`Death variance penalty: -${deathStabPenalty.toFixed(1)} (${(features.deathVariance || 0).toFixed(2)} × 2.5)`);
         
-        const objBonus = (features.objectiveFocus || 0) * 4;
+        const objBonus = (features.objectiveFocus || 0) * 8; // Doubled from 4 to 8
         traits["Emotional Stability"] += objBonus;
-        calculations["Emotional Stability"].push(`Objective focus: +${objBonus.toFixed(1)} (${(features.objectiveFocus || 0).toFixed(2)} × 4)`);
+        calculations["Emotional Stability"].push(`Objective focus: +${objBonus.toFixed(1)} (${(features.objectiveFocus || 0).toFixed(2)} × 8)`);
+        
+        // Add KDA consistency bonus (reward high KDA with low variance)
+        const kdaConsistency = features.avgKda > 2.0 && features.kdaVariance < 2.0;
+        if (kdaConsistency) {
+            traits["Emotional Stability"] += 10;
+            calculations["Emotional Stability"].push("KDA consistency bonus: +10.0");
+        }
         
         if (features.primaryRole === "JUNGLE") {
             traits["Emotional Stability"] += 10;

@@ -157,7 +157,7 @@ class LeagueDataFetcher {
         return this._makeRequest(url);
     }
 
-    async getCompletePlayerData(gameName, tagLine, maxFetch = 100, targetAnalyze = 50, includeMatchDetails = true) {
+    async getCompletePlayerData(gameName, tagLine, maxFetch = 100, targetAnalyze = 25, includeMatchDetails = true) {
         const data = {
             metadata: {
                 fetchedAt: new Date().toISOString(),

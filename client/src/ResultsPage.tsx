@@ -439,7 +439,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   const [chatMessages, setChatMessages] = useState<Array<{id: string, text: string, isUser: boolean, timestamp: Date}>>([
     {
       id: 'initial-1',
-      text: `Hello! I'm ${playerData?.account?.gameName || 'Player'}'s digital twin, powered by Claude AI. I have deep insights into their League gameplay, personality patterns, and performance data. Ask me anything about their League journey!`,
+      text: `Hello! I'm ${playerData?.account?.gameName || 'Player'}'s digital twin, powered by AWS Bedrock and Claude Sonnet 4.5. I have deep insights into their League gameplay, personality patterns, and performance data. Ask me anything about their League journey!`,
       isUser: false,
       timestamp: new Date()
     }
@@ -918,6 +918,19 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
       tempContainer.style.padding = '20px';
       tempContainer.style.zIndex = '99999';
       
+      // First, get computed styles from original elements before cloning
+      const originalElements = currentSlide.querySelectorAll('*');
+      const computedStylesMap = new Map<Element, { color: string; webkitBackgroundClip: string; backgroundClip: string }>();
+      
+      originalElements.forEach((element) => {
+        const computedStyle = window.getComputedStyle(element);
+        computedStylesMap.set(element, {
+          color: computedStyle.color,
+          webkitBackgroundClip: computedStyle.webkitBackgroundClip || '',
+          backgroundClip: computedStyle.backgroundClip || ''
+        });
+      });
+      
       // Clone the current slide
       const clonedSlide = currentSlide.cloneNode(true) as HTMLElement;
       
@@ -949,6 +962,46 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
         clonedChatMessages.style.display = 'flex';
         clonedChatMessages.style.flexDirection = 'column';
       }
+      
+      // Fix all text elements using the original computed styles
+      const clonedElements = clonedSlide.querySelectorAll('*');
+      const originalElementsArray = Array.from(originalElements);
+      
+      clonedElements.forEach((clonedElement, index) => {
+        const htmlElement = clonedElement as HTMLElement;
+        const originalElement = originalElementsArray[index];
+        const originalStyles = originalElement ? computedStylesMap.get(originalElement) : null;
+        
+        if (!originalStyles) return;
+        
+        // Fix background-clip: text issues
+        if (originalStyles.webkitBackgroundClip === 'text' || originalStyles.backgroundClip === 'text') {
+          htmlElement.style.background = 'none';
+          htmlElement.style.webkitBackgroundClip = 'unset';
+          htmlElement.style.backgroundClip = 'unset';
+          htmlElement.style.webkitTextFillColor = 'unset';
+          
+          // Set the color explicitly from the original computed color
+          if (originalStyles.color && originalStyles.color !== 'transparent') {
+            htmlElement.style.color = originalStyles.color;
+          } else {
+            htmlElement.style.color = '#ffffff';
+          }
+        }
+        
+        // Force white color for any black text (shouldn't be black on dark background)
+        if (originalStyles.color === 'rgb(0, 0, 0)' || originalStyles.color === 'black') {
+          htmlElement.style.color = '#ffffff';
+        }
+        
+        // Ensure all text content has a valid color
+        if (htmlElement.textContent && htmlElement.textContent.trim()) {
+          const currentColor = window.getComputedStyle(htmlElement).color;
+          if (!currentColor || currentColor === 'rgba(0, 0, 0, 0)' || currentColor === 'transparent') {
+            htmlElement.style.color = originalStyles.color !== 'transparent' ? originalStyles.color : '#ffffff';
+          }
+        }
+      });
       
       // Add the clone to temp container and container to document
       tempContainer.appendChild(clonedSlide);

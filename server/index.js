@@ -10,6 +10,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const LeagueDataFetcher = require('./leagueDataFetcher');
 const PersonalityAnalyzer = require('./personalityAnalyzer');
+const { compatibilityAnalysisPrompt, digitalTwinSystemPrompt, digitalTwinAcknowledgment } = require('./prompts');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -218,7 +219,7 @@ app.get('/api/search/:gameName/:tagLine/progress', async (req, res) => {
             gameName,
             tagLine,
             100,  // maxFetch
-            50,   // targetAnalyze
+            25,   // targetAnalyze - minimum games for analysis
             true
         );
 
@@ -288,7 +289,7 @@ app.get('/api/search/:gameName/:tagLine', async (req, res) => {
             gameName,
             tagLine,
             100,  // maxFetch - like Python GAMES_TO_FETCH
-            50,   // targetAnalyze - like Python GAMES_TO_ANALYZE
+            25,   // targetAnalyze - minimum games for analysis
             true
         );
 
@@ -390,7 +391,7 @@ app.post('/api/matchmaking', async (req, res) => {
             player2GameName, 
             player2TagLine, 
             100, // maxFetch - same as main search
-            50,  // targetAnalyze - same as main search
+            25,  // targetAnalyze - minimum games for analysis
             true // includeRankedMatches - same as main search
         );
 
@@ -471,31 +472,8 @@ async function calculateCompatibilityWithAI(player1Personality, player2Personali
         const player1Context = buildPlayerCompatibilityContext(player1Data, player1Personality, 'Player 1');
         const player2Context = buildPlayerCompatibilityContext(player2Data, player2Personality, 'Player 2');
 
-        const prompt = `You are an expert League of Legends duo compatibility analyst. Analyze the compatibility between these two players and provide insightful, personalized feedback.
-
-${player1Context}
-
-${player2Context}
-
-Based on their personalities, playstyles, and stats, provide a compatibility analysis in the following JSON format:
-{
-  "score": <number 0-100>,
-  "level": "<Excellent|Very Good|Good|Fair|Challenging>",
-  "recommendation": "<2-3 sentence personalized recommendation>",
-  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-  "challenges": ["<challenge 1>", "<challenge 2>"]
-}
-
-Guidelines:
-- Score should reflect overall duo potential (personality + playstyle + skill synergy)
-- Recommendation should be warm, encouraging, and specific to their duo dynamic
-- Strengths should highlight 3 key synergies (personality, playstyle, or role compatibility)
-- Challenges should mention 1-2 areas to work on (be constructive, not negative)
-- Use their actual champion preferences, roles, and personality traits in your analysis
-- Be conversational but insightful - make it feel personalized
-- Reference specific archetypes and traits when relevant
-
-Respond ONLY with the JSON object, no other text.`;
+        // Get the prompt from the prompts module
+        const prompt = compatibilityAnalysisPrompt(player1Context, player2Context);
 
         const payload = {
             anthropic_version: "bedrock-2023-05-31",
@@ -841,17 +819,12 @@ app.post('/api/chat', async (req, res) => {
         // Add system context as the first user message (Claude doesn't have system messages)
         messages.push({
             role: "user", 
-            content: `You are ${playerData?.account?.gameName || 'this player'}'s League of Legends digital twin AI assistant. You have deep insights into their gameplay, personality, and performance patterns. Be conversational, insightful, and engaging. Use the player's actual data to provide meaningful analysis.
-
-Player Context:
-${playerContext}
-
-Please respond as their digital twin, speaking knowledgeably about their League gameplay and personality. Keep responses concise but insightful (2-3 sentences typically).`
+            content: digitalTwinSystemPrompt(playerData?.account?.gameName, playerContext)
         });
         
         messages.push({
             role: "assistant", 
-            content: "I understand. I'm ready to discuss this player's League of Legends journey, personality insights, and gameplay patterns based on their data."
+            content: digitalTwinAcknowledgment()
         });
         
         // Add chat history (limit to last 10 messages to stay within token limits)

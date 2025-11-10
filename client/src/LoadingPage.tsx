@@ -8,8 +8,8 @@ interface LoadingPageProps {
 const LoadingPage: React.FC<LoadingPageProps> = ({ profileIconUrl, loadingStatus }) => {
   const getProgressPercentage = () => {
     const stats = getStatsFromStatus();
-    // Base progress on ranked games found out of target (50)
-    const targetRankedGames = 50;
+    // Base progress on ranked games found out of target (25)
+    const targetRankedGames = 25;
     const rankedProgress = Math.min((stats.ranked / targetRankedGames) * 100, 100);
     
     // If we have valid games analyzed, use that for final progress
@@ -41,7 +41,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ profileIconUrl, loadingStatus
       normal: normalMatch ? parseInt(normalMatch[1]) : 0,
       other: otherMatch ? parseInt(otherMatch[1]) : 0,
       valid: validMatch ? parseInt(validMatch[1]) : 0,
-      target: validMatch ? parseInt(validMatch[2]) : 50,
+      target: validMatch ? parseInt(validMatch[2]) : 25,
       fetched: matchIdsMatch ? parseInt(matchIdsMatch[1]) : 0,
       maxFetch: matchIdsMatch ? parseInt(matchIdsMatch[2]) : 100
     };
