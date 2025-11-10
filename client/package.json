@@ -4,16 +4,19 @@
   "private": true,
   "dependencies": {
     "@types/node": "^16.18.126",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/react-router-dom": "^5.3.3",
+    "html2canvas": "^1.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.15.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5"
   },
   "scripts": {
     "start": "cross-env HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts start",
-    "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts build"
+    "build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -33,6 +36,7 @@
     ]
   },
   "devDependencies": {
+    "@types/html2canvas": "^0.5.35",
     "cross-env": "^10.1.0"
   }
 }
