@@ -45,7 +45,6 @@ pids
 coverage/
 
 # Package-lock files (keep only one)
-package-lock.json
 yarn.lock
 
 # Temporary folders
