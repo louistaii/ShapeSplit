@@ -2,18 +2,30 @@
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+// Get the API URL from environment variables
+const getApiUrl = () => {
+  if (isProduction) {
+    // In production, use the environment variable set by Amplify
+    const apiUrl = process.env.REACT_APP_API_URL;
+    if (!apiUrl) {
+      console.error('REACT_APP_API_URL environment variable is not set in production');
+      // TODO: Replace this with your actual API Gateway URL
+      // Get this from AWS API Gateway console after deploying your backend
+      return 'https://your-actual-api-gateway-url.execute-api.us-east-1.amazonaws.com/prod';
+    }
+    return apiUrl;
+  }
+  return 'http://localhost:5000';
+};
+
 // For production, Amplify will inject the API Gateway URL
 // For development, we use localhost
 export const API_CONFIG = {
   // The API Gateway endpoint will be available as an environment variable in production
-  baseURL: isProduction 
-    ? process.env.REACT_APP_API_URL || '' 
-    : 'http://localhost:5000',
+  baseURL: getApiUrl(),
   
   // For Server-Sent Events endpoint
-  sseBaseURL: isProduction 
-    ? process.env.REACT_APP_API_URL || '' 
-    : 'http://localhost:5000',
+  sseBaseURL: getApiUrl(),
 
   // Timeout settings
   timeout: 300000, // 5 minutes for long-running analysis

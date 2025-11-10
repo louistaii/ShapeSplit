@@ -1,4 +1,10 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - '# Execute Amplify CLI with the helper script'
+        - amplifyPush --simple
 frontend:
   phases:
     preBuild:
@@ -9,6 +15,8 @@ frontend:
     build:
       commands:
         - echo "Building React application..."
+        - echo "API Gateway URL is $AWS_API_GATEWAY_URL"
+        - export REACT_APP_API_URL=$AWS_API_GATEWAY_URL
         - npm run build
         - echo "React build completed"
   artifacts:
