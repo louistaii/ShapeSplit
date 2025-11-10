@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "cross-env HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts start",
-    "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 react-scripts build"
+    "build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -38,6 +38,5 @@
   "devDependencies": {
     "@types/html2canvas": "^0.5.35",
     "cross-env": "^10.1.0"
-  },
-  "proxy": "http://localhost:5000"
+  }
 }

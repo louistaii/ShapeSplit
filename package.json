@@ -2,13 +2,13 @@
   "name": "league-stats-app",
   "version": "1.0.0",
   "description": "A League of Legends player statistics web application",
-  "main": "server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node index.js",
     "client": "cd client && cross-env HTTPS=false NODE_TLS_REJECT_UNAUTHORIZED=0 npm start",
-    "build": "cd client && cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 npm run build",
-    "install-all": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 npm install && cd server && npm install && cd ../client && npm install"
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd api && npm install && cd ../client && npm install",
+    "vercel-build": "cd client && npm install && npm run build"
   },
   "keywords": [
     "league of legends",

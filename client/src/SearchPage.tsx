@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlayerDataContext } from './PlayerDataContext';
+import { getApiUrl } from './config';
 
 const regions = [
   { value: 'kr', label: 'Korea' },
@@ -37,58 +38,36 @@ const SearchPage: React.FC = () => {
     navigate('/loading');
 
     try {
-      // Use Server-Sent Events for real-time progress updates
-      const eventSource = new EventSource(`http://localhost:5000/api/search/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}/progress?region=${region}`);
+      // Update progress messages during fetch
+      context?.setLoadingStatus((prev) => [...prev, '🔍 Fetching player data...']);
       
-      eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        
-        if (data.type === 'progress') {
-          // Format detailed progress messages
-          let message = data.message;
-          
-          if (data.finalStats) {
-            message += ` (🏆 ${data.finalStats.rankedGames} ranked, 🎮 ${data.finalStats.normalGames} normal, 📊 ${data.finalStats.otherGames} other)`;
-          } else if (data.rankedGames !== undefined) {
-            message += ` (🏆 ${data.rankedGames} ranked, 🎮 ${data.normalGames} normal, 📊 ${data.otherGames} other)`;
-          } else if (data.validGames !== undefined) {
-            message += ` (✅ ${data.validGames}/${data.targetAnalyze} valid games)`;
-          } else if (data.matchIds !== undefined) {
-            message += ` (📥 ${data.matchIds}/${data.maxFetch})`;
-          }
-          
-          context?.setLoadingStatus((prev) => [...prev, message]);
-        } else if (data.type === 'complete') {
-          eventSource.close();
-          context?.setPlayerData(data.data);
-          if (data.data.summoner?.profileIconUrl) {
-            context?.setProfileIconUrl(data.data.summoner.profileIconUrl);
-          }
-          context?.setLoadingStatus((prev) => [...prev, '✨ Analysis complete!']);
-          navigate('/results');
-        } else if (data.type === 'error') {
-          eventSource.close();
-          context?.setLoadingStatus((prev) => [...prev, `❌ ${data.message}`]);
-          setTimeout(() => {
-            context?.setErrorMessage(data.message);
-            navigate('/');
-          }, 1200);
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        eventSource.close();
-        context?.setLoadingStatus((prev) => [...prev, '❌ Connection error']);
-        setTimeout(() => {
-          context?.setErrorMessage('Connection error occurred');
-          navigate('/');
-        }, 1200);
-      };
+      const response = await fetch(
+        getApiUrl(`/api/search/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?region=${region}`)
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch player data');
+      }
+      
+      context?.setLoadingStatus((prev) => [...prev, '📊 Processing match history...']);
+      const data = await response.json();
+      
+      context?.setLoadingStatus((prev) => [...prev, '🧠 Analyzing personality...']);
+      
+      context?.setPlayerData(data);
+      if (data.summoner?.profileIconUrl) {
+        context?.setProfileIconUrl(data.summoner.profileIconUrl);
+      }
+      
+      context?.setLoadingStatus((prev) => [...prev, '✨ Analysis complete!']);
+      navigate('/results');
 
     } catch (err) {
-      context?.setLoadingStatus((prev) => [...prev, `❌ ${err instanceof Error ? err.message : 'An error occurred'}`]);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      context?.setLoadingStatus((prev) => [...prev, `❌ ${errorMessage}`]);
       setTimeout(() => {
-        context?.setErrorMessage(err instanceof Error ? err.message : 'An error occurred');
+        context?.setErrorMessage(errorMessage);
         navigate('/');
       }, 1200);
     }

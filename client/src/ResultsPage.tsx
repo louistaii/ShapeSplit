@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
+import { getApiUrl } from './config';
 
 // Matchmaking Card Component
 interface MatchmakingCardProps {
@@ -67,7 +68,7 @@ const MatchmakingCard: React.FC<MatchmakingCardProps> = ({ playerData }) => {
     setMatchResult(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/matchmaking', {
+      const response = await fetch(getApiUrl('/api/matchmaking'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -518,7 +519,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
     
     try {
       // Call the Bedrock-powered chat endpoint
-      const response = await fetch('/api/chat', {
+      const response = await fetch(getApiUrl('/api/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

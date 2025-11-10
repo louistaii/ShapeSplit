@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/build",
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/regions",
+      "dest": "/api/regions.js"
+    },
+    {
+      "src": "/api/bedrock-test",
+      "dest": "/api/bedrock-test.js"
+    },
+    {
+      "src": "/api/test-images",
+      "dest": "/api/test-images.js"
+    },
+    {
+      "src": "/api/search/(.*)",
+      "dest": "/api/search.js"
+    },
+    {
+      "src": "/api/matchmaking",
+      "dest": "/api/matchmaking.js",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/chat",
+      "dest": "/api/chat.js",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/client/build/static/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|json|txt|woff|woff2|ttf|eot))",
+      "dest": "/client/build/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/build/index.html"
+    }
+  ]
+}
