@@ -8,7 +8,6 @@ frontend:
         - echo "Installing frontend dependencies completed"
     build:
       commands:
-        - cd client
         - echo "Building React application..."
         - npm run build
         - echo "React build completed"
