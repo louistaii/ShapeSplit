@@ -413,8 +413,13 @@ app.post('/api/matchmaking', async (req, res) => {
             player2Personality = { error: 'Analysis failed', message: analysisError.message };
         }
 
-        // Calculate compatibility
-        const compatibility = calculateCompatibility(player1Personality, player2Personality, player1Data, player2Data);
+        // Calculate compatibility using AI
+        const compatibility = await calculateCompatibilityWithAI(
+            player1Personality, 
+            player2Personality, 
+            player1Data, 
+            player2Data
+        );
 
         res.json({
             success: true,
@@ -444,7 +449,181 @@ app.post('/api/matchmaking', async (req, res) => {
     }
 });
 
-// Compatibility calculation function
+// AI-powered compatibility calculation using Amazon Bedrock Claude
+async function calculateCompatibilityWithAI(player1Personality, player2Personality, player1Data, player2Data) {
+    // First, get the basic compatibility score using rule-based system
+    const basicCompatibility = calculateCompatibility(player1Personality, player2Personality, player1Data, player2Data);
+    
+    // If Bedrock is not configured or personalities are missing, return basic result
+    if (!process.env.BEDROCK_API_KEY || !process.env.AWS_REGION || 
+        !player1Personality?.personality || !player2Personality?.personality ||
+        player1Personality.error || player2Personality.error) {
+        return basicCompatibility;
+    }
+
+    try {
+        const apiKey = process.env.BEDROCK_API_KEY;
+        const awsRegion = process.env.AWS_REGION;
+        const modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0";
+        const url = `https://bedrock-runtime.${awsRegion}.amazonaws.com/model/${modelId}/invoke`;
+
+        // Build comprehensive context for AI analysis
+        const player1Context = buildPlayerCompatibilityContext(player1Data, player1Personality, 'Player 1');
+        const player2Context = buildPlayerCompatibilityContext(player2Data, player2Personality, 'Player 2');
+
+        const prompt = `You are an expert League of Legends duo compatibility analyst. Analyze the compatibility between these two players and provide insightful, personalized feedback.
+
+${player1Context}
+
+${player2Context}
+
+Based on their personalities, playstyles, and stats, provide a compatibility analysis in the following JSON format:
+{
+  "score": <number 0-100>,
+  "level": "<Excellent|Very Good|Good|Fair|Challenging>",
+  "recommendation": "<2-3 sentence personalized recommendation>",
+  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
+  "challenges": ["<challenge 1>", "<challenge 2>"]
+}
+
+Guidelines:
+- Score should reflect overall duo potential (personality + playstyle + skill synergy)
+- Recommendation should be warm, encouraging, and specific to their duo dynamic
+- Strengths should highlight 3 key synergies (personality, playstyle, or role compatibility)
+- Challenges should mention 1-2 areas to work on (be constructive, not negative)
+- Use their actual champion preferences, roles, and personality traits in your analysis
+- Be conversational but insightful - make it feel personalized
+- Reference specific archetypes and traits when relevant
+
+Respond ONLY with the JSON object, no other text.`;
+
+        const payload = {
+            anthropic_version: "bedrock-2023-05-31",
+            max_tokens: 500,
+            messages: [
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            temperature: 0.7
+        };
+
+        console.log('🤖 Generating AI compatibility analysis...');
+
+        const response = await axios.post(url, payload, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            timeout: 30000
+        });
+
+        const aiResponse = response.data.content[0].text;
+        console.log('✅ AI compatibility analysis generated');
+
+        // Parse the AI response
+        const aiCompatibility = JSON.parse(aiResponse);
+
+        // Validate the response structure
+        if (!aiCompatibility.score || !aiCompatibility.level || !aiCompatibility.recommendation) {
+            throw new Error('Invalid AI response format');
+        }
+
+        return {
+            score: Math.max(0, Math.min(100, Math.round(aiCompatibility.score))),
+            level: aiCompatibility.level,
+            recommendation: aiCompatibility.recommendation,
+            strengths: aiCompatibility.strengths || [],
+            challenges: aiCompatibility.challenges || [],
+            aiGenerated: true
+        };
+
+    } catch (error) {
+        console.error('AI compatibility generation failed:', error);
+        console.log('⚠️ Falling back to rule-based compatibility');
+        
+        // Return the basic rule-based result as fallback
+        return {
+            ...basicCompatibility,
+            aiGenerated: false,
+            fallback: true
+        };
+    }
+}
+
+// Helper function to build player context for compatibility analysis
+function buildPlayerCompatibilityContext(playerData, personality, label) {
+    let context = [`${label}:`];
+    
+    // Basic info
+    if (playerData.account) {
+        context.push(`  Name: ${playerData.account.gameName}#${playerData.account.tagLine}`);
+    }
+    
+    if (playerData.summoner?.summonerLevel) {
+        context.push(`  Level: ${playerData.summoner.summonerLevel}`);
+    }
+    
+    // Ranked info
+    if (playerData.ranked?.length > 0) {
+        const soloRank = playerData.ranked.find(r => r.queueType === 'RANKED_SOLO_5x5');
+        if (soloRank) {
+            const winRate = Math.round((soloRank.wins / (soloRank.wins + soloRank.losses)) * 100);
+            context.push(`  Rank: ${soloRank.tier} ${soloRank.rank} ${soloRank.leaguePoints}LP (${winRate}% WR, ${soloRank.wins}W/${soloRank.losses}L)`);
+        }
+    }
+    
+    // Champion mastery
+    if (playerData.championMastery?.champions?.length > 0) {
+        const topChamps = playerData.championMastery.champions.slice(0, 3).map(c => 
+            c.championName || `Champion ${c.championId}`
+        ).join(', ');
+        context.push(`  Main Champions: ${topChamps}`);
+    }
+    
+    // Personality analysis
+    if (personality?.personality) {
+        const p = personality.personality;
+        
+        if (p.archetype) {
+            context.push(`  Archetype: ${p.archetype.name} (${p.archetype.similarity}% match)`);
+            context.push(`  Archetype Description: ${p.archetype.description}`);
+        }
+        
+        if (p.bigFive) {
+            context.push(`  Personality Traits:`);
+            Object.entries(p.bigFive).forEach(([trait, score]) => {
+                context.push(`    - ${trait}: ${score}%`);
+            });
+        }
+    }
+    
+    // Playstyle stats
+    if (personality?.stats?.features) {
+        const stats = personality.stats.features;
+        context.push(`  Playstyle:`);
+        if (stats.primaryRole) context.push(`    - Primary Role: ${stats.primaryRole}`);
+        if (stats.avgKda) context.push(`    - Average KDA: ${stats.avgKda.toFixed(2)}`);
+        if (stats.aggressionIndex !== undefined) {
+            const aggressionLevel = stats.aggressionIndex > 0.7 ? 'Very Aggressive' : 
+                                   stats.aggressionIndex > 0.5 ? 'Aggressive' :
+                                   stats.aggressionIndex > 0.3 ? 'Balanced' : 'Passive';
+            context.push(`    - Aggression: ${aggressionLevel} (${(stats.aggressionIndex * 100).toFixed(0)}%)`);
+        }
+        if (stats.championDiversity !== undefined) {
+            context.push(`    - Champion Pool: ${(stats.championDiversity * 100).toFixed(0)}% diversity`);
+        }
+        if (stats.killParticipation !== undefined) {
+            context.push(`    - Kill Participation: ${(stats.killParticipation * 100).toFixed(0)}%`);
+        }
+    }
+    
+    return context.join('\n');
+}
+
+// Compatibility calculation function (rule-based fallback)
 function calculateCompatibility(player1Personality, player2Personality, player1Data, player2Data) {
     let score = 50; // Base compatibility score
     let reasons = [];

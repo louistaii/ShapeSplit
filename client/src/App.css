@@ -1299,11 +1299,15 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: clamp(0.75rem, 2vw, 1.5rem);
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* When there are results, align to top */
@@ -1570,6 +1574,11 @@
 
 .compatibility-result {
 	text-align: center;
+	max-width: 100%;
+	overflow-x: hidden;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	box-sizing: border-box;
 }
 
 
@@ -1580,6 +1589,8 @@
   margin-bottom: clamp(1rem, 3vw, 2rem);
   gap: clamp(0.5rem, 2vw, 1rem);
   flex-shrink: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 
@@ -1589,6 +1600,8 @@
   align-items: center;
   gap: 0.5rem;
   flex: 1;
+  min-width: 0;
+  max-width: 33%;
 }
 
 
@@ -1602,22 +1615,34 @@
 
 .player-details {
   text-align: center;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 
 .player-name {
   font-size: 1.2rem;
   font-weight: bold;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .player-tag {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 
 .player-archetype {
-padding: 0.25rem 0.75rem;
+  padding: 0.25rem 0.75rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
   border-radius: 12px;
   font-size: 0.8rem;
   margin-top: 0.25rem;
@@ -1670,20 +1695,30 @@ padding: 0.25rem 0.75rem;
 .compatibility-details {
   text-align: left;
   max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 0.5rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .compatibility-details > div {
   margin-bottom: clamp(0.75rem, 2vw, 1.5rem);
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .compatibility-details h4 {
   margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
   color: #f59e0b;
   font-size: clamp(0.9rem, 2vw, 1.1rem);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .recommendation p {
@@ -1694,11 +1729,18 @@ padding: 0.25rem 0.75rem;
   border-radius: 8px;
   border-left: 4px solid #3b82f6;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .strengths ul, .challenges ul {
   list-style: none;
   padding: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .strengths li, .challenges li {
@@ -1708,6 +1750,11 @@ padding: 0.25rem 0.75rem;
   background: rgba(255, 255, 255, 0.05);
   font-size: clamp(0.85rem, 1.8vw, 1rem);
   line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .strengths li {
@@ -1934,8 +1981,10 @@ padding: 0.25rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   width: 100%;
+  max-width: 100%;
   height: 100%;
   margin: 0 80px; /* Space for navigation buttons */
+  box-sizing: border-box;
 }
 
 /* Main content area for navigation layout */
@@ -1952,16 +2001,22 @@ padding: 0.25rem 0.75rem;
 .card-slider {
   display: flex;
   height: 100%;
+  width: 100%;
+  max-width: 100%;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .card-slide {
   min-width: 100%;
+  max-width: 100%;
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .wrapped-card {
@@ -1971,11 +2026,14 @@ padding: 0.25rem 0.75rem;
   align-items: center;
   justify-content: center;
   font-family: 'Rajdhani', sans-serif;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .wrapped-card-content {
   width: 100%;
   height: 100%;
+  max-width: 100%;
   padding: clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
@@ -1984,6 +2042,7 @@ padding: 0.25rem 0.75rem;
   text-align: center;
   box-sizing: border-box;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .card-title {
