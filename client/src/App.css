@@ -2212,6 +2212,9 @@ padding: 0.25rem 0.75rem;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-messages {
@@ -2222,6 +2225,9 @@ padding: 0.25rem 0.75rem;
   flex-direction: column;
   gap: clamp(0.6rem, 1.5vw, 0.8rem);
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -2244,6 +2250,10 @@ padding: 0.25rem 0.75rem;
   gap: 0.5rem;
   max-width: 85%;
   animation: fadeInUp 0.3s ease;
+  width: fit-content;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .user-message {
@@ -2279,6 +2289,26 @@ padding: 0.25rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.message-avatar {
+  position: relative;
+}
+
+.claude-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .message-content {
   background: rgba(255, 255, 255, 0.1);
   padding: clamp(0.6rem, 1.5vw, 0.8rem);
@@ -2288,6 +2318,11 @@ padding: 0.25rem 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .user-message .message-content {
@@ -2300,6 +2335,10 @@ padding: 0.25rem 0.75rem;
   font-size: clamp(0.8rem, 1.8vw, 0.9rem);
   line-height: 1.4;
   color: #ffffff;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
 }
 
 .message-time {
@@ -2366,6 +2405,9 @@ padding: 0.25rem 0.75rem;
   font-family: inherit;
   outline: none;
   transition: all 0.3s ease;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-input::placeholder {

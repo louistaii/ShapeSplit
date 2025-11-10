@@ -438,8 +438,8 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   // Chat functionality state
   const [chatMessages, setChatMessages] = useState<Array<{id: string, text: string, isUser: boolean, timestamp: Date}>>([
     {
-      id: '1',
-      text: `Hello! I'm ${playerData?.account?.gameName || 'Player'}'s digital twin. Ask me anything about their League of Legends gameplay!`,
+      id: 'initial-1',
+      text: `Hello! I'm ${playerData?.account?.gameName || 'Player'}'s digital twin, powered by Claude AI. I have deep insights into their League gameplay, personality patterns, and performance data. Ask me anything about their League journey!`,
       isUser: false,
       timestamp: new Date()
     }
@@ -512,22 +512,60 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
     };
     
     setChatMessages(prev => [...prev, userMessage]);
+    const messageToSend = currentMessage;
     setCurrentMessage('');
     setIsTyping(true);
     
-    // Simulate AI response with game data context
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(currentMessage, playerData);
+    try {
+      // Call the Bedrock-powered chat endpoint
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageToSend,
+          playerData: playerData,
+          chatHistory: chatMessages.filter(msg => !msg.id.includes('initial')) // Don't send initial greeting
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        const aiMessage = {
+          id: (Date.now() + 1).toString(),
+          text: data.response,
+          isUser: false,
+          timestamp: new Date()
+        };
+        
+        setChatMessages(prev => [...prev, aiMessage]);
+        
+        // Log if fallback was used
+        if (data.fallback) {
+          console.log('Using fallback response due to Bedrock error:', data.error);
+        }
+      } else {
+        throw new Error(data.error || 'Chat request failed');
+      }
+      
+    } catch (error) {
+      console.error('Chat error:', error);
+      
+      // Fallback to local response generation
+      const fallbackResponse = generateAIResponse(messageToSend, playerData);
       const aiMessage = {
         id: (Date.now() + 1).toString(),
-        text: aiResponse,
+        text: fallbackResponse + " (Note: Advanced AI is temporarily unavailable)",
         isUser: false,
         timestamp: new Date()
       };
       
       setChatMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+    }
   };
 
   const generateAIResponse = (userMessage: string, data: PlayerData | null): string => {
@@ -622,6 +660,9 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
                     {!message.isUser && (
                       <div className="message-avatar">
                         <img src={playerData.summoner?.profileIconUrl} alt="AI Avatar" />
+                        {!message.text.includes('(Note: Advanced AI is temporarily unavailable)') && !message.id.includes('initial') && (
+                          <div className="claude-indicator" title="Powered by Claude AI">🧠</div>
+                        )}
                       </div>
                     )}
                     <div className="message-content">

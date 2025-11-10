@@ -38,5 +38,6 @@
   "devDependencies": {
     "@types/html2canvas": "^0.5.35",
     "cross-env": "^10.1.0"
-  }
+  },
+  "proxy": "http://localhost:5000"
 }
