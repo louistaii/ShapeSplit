@@ -2237,6 +2237,12 @@
   height: 100%;
   margin: 0 80px; /* Space for navigation buttons */
   box-sizing: border-box;
+  cursor: grab;
+  user-select: none;
+}
+
+.card-container:active {
+  cursor: grabbing;
 }
 
 /* Main content area for navigation layout */
@@ -2367,6 +2373,53 @@
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
   opacity: 0.2;
+}
+
+/* Hide navigation buttons on mobile for touch/swipe navigation */
+@media (max-width: 768px) {
+  .nav-button {
+    display: none;
+  }
+  
+  /* Adjust card container margins when nav buttons are hidden */
+  .card-container {
+    margin: 0 20px;
+    touch-action: pan-x; /* Allow horizontal panning for swipe */
+    user-select: none; /* Prevent text selection during swipe */
+    -webkit-touch-callout: none; /* Prevent iOS callout */
+    -webkit-user-select: none; /* Prevent iOS text selection */
+  }
+  
+  /* Make card slider more responsive to touch */
+  .card-slider {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform; /* Optimize for animations */
+  }
+  
+  /* Add subtle feedback for touch interactions */
+  .card-container:active {
+    transform: scale(0.99);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Prevent default touch behaviors on card content */
+  .wrapped-card {
+    touch-action: pan-x;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Progress indicators spacing adjustment for mobile */
+  .progress-indicators {
+    padding: 1rem 0;
+    gap: 8px;
+  }
+  
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+  }
 }
 
 /* Additional responsive breakpoints for better scaling */
