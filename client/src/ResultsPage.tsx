@@ -414,6 +414,11 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
   const [shareCardData, setShareCardData] = useState<{ title: string; content: string } | null>(null);
   const cardContainerRef = useRef<HTMLDivElement>(null);
   
+  // Touch/swipe state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  
   // Chat functionality state
   const [chatMessages, setChatMessages] = useState<Array<{id: string, text: string, isUser: boolean, timestamp: Date}>>([
     {
@@ -841,6 +846,97 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
 
   const goToCard = (index: number) => {
     setCurrentCardIndex(index);
+  };
+
+  // Touch/swipe handlers
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    console.log('Touch start:', e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    
+    const currentTouch = e.targetTouches[0].clientX;
+    setTouchEnd(currentTouch);
+    
+    // Calculate the difference to determine if this is a horizontal swipe
+    const diff = Math.abs(touchStart - currentTouch);
+    
+    // If the user has moved more than 10px horizontally, prevent vertical scrolling
+    if (diff > 10) {
+      e.preventDefault();
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      console.log('Touch end: missing start or end', { touchStart, touchEnd });
+      return;
+    }
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    console.log('Touch end:', { distance, isLeftSwipe, isRightSwipe, currentCardIndex, totalCards: cards.length });
+
+    if (isLeftSwipe && currentCardIndex < cards.length - 1) {
+      console.log('Swiping to next card');
+      nextCard();
+    } else if (isRightSwipe && currentCardIndex > 0) {
+      console.log('Swiping to previous card');
+      prevCard();
+    }
+    
+    // Reset touch state
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Mouse drag handlers for desktop
+  const onMouseDown = (e: React.MouseEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.clientX);
+    setIsDragging(true);
+    console.log('Mouse down:', e.clientX);
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !touchStart) return;
+    setTouchEnd(e.clientX);
+  };
+
+  const onMouseUp = () => {
+    if (!isDragging || !touchStart || !touchEnd) {
+      setIsDragging(false);
+      return;
+    }
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    console.log('Mouse up:', { distance, isLeftSwipe, isRightSwipe, currentCardIndex, totalCards: cards.length });
+
+    if (isLeftSwipe && currentCardIndex < cards.length - 1) {
+      console.log('Dragging to next card');
+      nextCard();
+    } else if (isRightSwipe && currentCardIndex > 0) {
+      console.log('Dragging to previous card');
+      prevCard();
+    }
+    
+    setIsDragging(false);
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  const onMouseLeave = () => {
+    setIsDragging(false);
   };
 
   // Share functions
@@ -1362,7 +1458,17 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ playerData }) => {
           </button>
 
           {/* Card Container */}
-          <div className="card-container" ref={cardContainerRef}>
+          <div 
+            className="card-container" 
+            ref={cardContainerRef}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
+            onMouseLeave={onMouseLeave}
+          >
             {/* Share Button */}
             <button 
               className="share-button"
